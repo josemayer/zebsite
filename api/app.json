@@ -1,0 +1,6 @@
+{
+  "name": "ZéPI",
+  "description": "NodeJS Rest API using Express and Postgres. Inspired by https://geshan.com.np/blog/2021/01/nodejs-postgresql-tutorial/",
+  "repository": "https://github.com/josemayer/zebsite",
+  "keywords": ["node", "express", "postgresql"]
+}
