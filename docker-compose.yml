@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: ./httpd/Dockerfile
+      target: production
     ports:
       - 80:80
       - 443:443
@@ -16,8 +17,24 @@ services:
       - postgres
       - api
     profiles:
-      - dev
       - prod
+
+  apache-dev:
+    build:
+      context: .
+      dockerfile: ./httpd/Dockerfile
+      target: development
+    ports:
+      - 80:80
+    volumes:
+      - ./httpd/htdocs:/usr/local/apache2/htdocs
+    networks:
+      - frontend
+    depends_on:
+      - postgres
+      - api-dev
+    profiles:
+      - dev
 
   api-dev:
     build: 

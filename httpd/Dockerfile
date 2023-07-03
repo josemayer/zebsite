@@ -1,4 +1,8 @@
-FROM httpd
+FROM httpd AS base
 
-COPY ./httpd/conf /usr/local/apache2/conf
+FROM base AS production
+COPY ./httpd/conf/prod /usr/local/apache2/conf
 COPY ./ssl /usr/local/apache2/conf/ssl
+
+FROM base AS development
+COPY ./httpd/conf/dev /usr/local/apache2/conf
