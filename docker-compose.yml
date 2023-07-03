@@ -57,32 +57,17 @@ services:
     profiles:
       - prod
 
-  postgres-dev:
-    image: postgres:14.1-alpine
-    env_file:
-      - ./db/.env
-    volumes:
-      - ./db/sql:/docker-entrypoint-initdb.d/
-    networks:
-      - backend
-    profiles:
-      - dev
-
   postgres:
     image: postgres:14.1-alpine
     env_file:
        - ./db/.env
     volumes:
-      - db:/var/lib/postgresql/data
       - ./db/sql:/docker-entrypoint-initdb.d/
     networks:
       - backend
     profiles:
       - prod
-
-volumes:
-  db:
-    driver: local
+      - dev
 
 networks:
   frontend:
