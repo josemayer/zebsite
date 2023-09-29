@@ -19,6 +19,20 @@ services:
     profiles:
       - prod
 
+  bun:
+    build:
+      context: .
+      dockerfile: ./web/www/Dockerfile
+      target: builder
+    volumes:
+      - ./httpd/htdocs/www2:/app/dist
+    networks:
+      - frontend
+    depends_on:
+      - apache
+    profiles:
+      - prod
+
   apache-dev:
     build:
       context: .
@@ -37,7 +51,7 @@ services:
       - dev
 
   api-dev:
-    build: 
+    build:
       context: .
       target: development
       dockerfile: ./api/Dockerfile
