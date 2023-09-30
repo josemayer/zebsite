@@ -19,13 +19,11 @@ services:
     profiles:
       - prod
 
-  bun:
+  blog:
     build:
       context: .
-      dockerfile: ./web/www/Dockerfile
-      target: builder
-    volumes:
-      - ./httpd/htdocs/www2:/app/dist
+      dockerfile: ./web/blog/Dockerfile
+      target: production
     networks:
       - frontend
     depends_on:
