@@ -48,6 +48,20 @@ services:
     profiles:
       - dev
 
+  blog-dev:
+    build:
+      context: .
+      dockerfile: ./web/blog/Dockerfile
+      target: development
+    volumes:
+      - ./web/blog/src:/app/src
+    ports:
+      - 3000:3000
+    networks:
+      - frontend
+    profiles:
+      - dev
+
   api-dev:
     build:
       context: .

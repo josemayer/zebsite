@@ -9,6 +9,14 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY ./web/blog .
 RUN npm run build
 
+FROM node AS development
+ENV NODE_ENV=development
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY ./web/blog .
+EXPOSE 3000
+CMD ["npm", "run", "dev"]
+
 FROM node AS production
 ENV NODE_ENV=production
 WORKDIR /app
