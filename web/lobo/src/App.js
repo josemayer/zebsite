@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
 function App() {
+  const endpoint = process.env.REACT_APP_SOCKET_ENDPOINT || "http://localhost:4000/";
+
   const [currentScreen, setCurrentScreen] = useState('login');
   const [socket, setSocket] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -12,7 +14,7 @@ function App() {
   const [playerList, setPlayerList] = useState([]);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:4000", { autoConnect: false });
+    const newSocket = io(endpoint, { autoConnect: false });
     setSocket(newSocket);
 
     return () => {
