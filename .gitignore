@@ -5,3 +5,6 @@ ssl/*
 **/.env
 
 **/node_modules
+
+httpd/htdocs/lobo/
+!httpd/htdocs/lobo/.keep
