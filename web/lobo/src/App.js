@@ -5,6 +5,7 @@ function App() {
   const endpoint = process.env.REACT_APP_SOCKET_ENDPOINT || "http://localhost:4000/";
 
   const [currentScreen, setCurrentScreen] = useState('login');
+  const [error, setError] = useState("");
   const [socket, setSocket] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [connected, setConnected] = useState(false);
@@ -21,6 +22,10 @@ function App() {
       newSocket.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    setError("");
+  }, [currentScreen]);
 
   useEffect(() => {
     if (socket) {
@@ -68,18 +73,18 @@ function App() {
         roomCode: roomInput,
       };
 
-      setLoggedIn(true);
-      setConnected(true);
-      setCurrentScreen("room");
       socket.emit("join_room", playerData);
 
       socket.on("room_joined", (room) => {
+        setLoggedIn(true);
+        setConnected(true);
+        setCurrentScreen("room");
         setRoomCode(room.code.toString());
         setPlayerList(room.players);
       });
 
       socket.on("error", (error) => {
-        console.error(error);
+        setError(error);
       });
     }
   }
@@ -96,9 +101,14 @@ function App() {
       });
 
       socket.on("error", (error) => {
-        console.error(error);
+        setError(error);
       });
     }
+  }
+
+  function backToSelect() {
+    setLoggedIn(false);
+    setCurrentScreen("login");
   }
 
   const screens = {
@@ -119,6 +129,7 @@ function App() {
           <input placeholder="Room code" value={roomInput} onChange={(e) => setRoomInput(e.target.value)} disabled={!loggedIn || connected} />
         </p>
         <p>
+          <button onClick={backToSelect} disabled={!loggedIn || connected}>Back</button>
           <button onClick={loginPlayer} disabled={!loggedIn || connected}>Go to room</button>
         </p>
       </div>
@@ -139,6 +150,7 @@ function App() {
   return (
     <div className="App">
       <h1>Socket.io Client</h1>
+      <div style={{color: "red"}}>{error}</div>
 
       {currentScreen === 'login' && screens.login}
       {currentScreen === 'joinRoom' && screens.joinRoom}
