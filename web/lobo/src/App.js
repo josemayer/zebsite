@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 
 function App() {
   const endpoint = process.env.REACT_APP_SOCKET_ENDPOINT || "http://localhost:4000/";
+  const defaultCapacity = 1;
 
   const [currentScreen, setCurrentScreen] = useState('login');
   const [error, setError] = useState("");
@@ -12,6 +13,7 @@ function App() {
   const [roomCode, setRoomCode] = useState("");
   const [roomInput, setRoomInput] = useState("");
   const [name, setName] = useState("");
+  const [capacity, setCapacity] = useState(defaultCapacity);
   const [playerList, setPlayerList] = useState([]);
 
   useEffect(() => {
@@ -40,17 +42,25 @@ function App() {
   }, [socket]);
 
   function handleHost() {
+    setLoggedIn(true);
+    setCurrentScreen("roomConfig");
+  }
+
+  function createRoom() {
     if (socket) {
       socket.connect();
+      const roomData = {
+        capacity: capacity,
+      };
+
       const playerData = {
         name: name,
         position: "host",
       };
 
-      setLoggedIn(true);
       setConnected(true);
       setCurrentScreen("room");
-      socket.emit("create_new_room", playerData);
+      socket.emit("create_new_room", { roomData: roomData, playerData: playerData});
 
       socket.on("room_created", (room) => {
         setRoomCode(room.code.toString());
@@ -64,7 +74,7 @@ function App() {
     setCurrentScreen("joinRoom");
   }
 
-  function loginPlayer() {
+  function joinRoom() {
     if (socket) {
       socket.connect();
       const playerData = {
@@ -130,7 +140,18 @@ function App() {
         </p>
         <p>
           <button onClick={backToSelect} disabled={!loggedIn || connected}>Back</button>
-          <button onClick={loginPlayer} disabled={!loggedIn || connected}>Go to room</button>
+          <button onClick={joinRoom} disabled={!loggedIn || connected}>Go to room</button>
+        </p>
+      </div>
+    ),
+    roomConfig: (
+      <div>
+        <p>
+          <label htmlFor="capacity">Capacity:</label>
+          <input name="capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} disabled={!loggedIn || connected} />
+        </p>
+        <p>
+          <button onClick={createRoom} disabled={!loggedIn || connected}>Create room</button>
         </p>
       </div>
     ),
@@ -155,6 +176,7 @@ function App() {
       {currentScreen === 'login' && screens.login}
       {currentScreen === 'joinRoom' && screens.joinRoom}
       {currentScreen === 'room' && screens.room}
+      {currentScreen === 'roomConfig' && screens.roomConfig}
     </div>
   );
 }

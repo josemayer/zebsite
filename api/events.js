@@ -16,9 +16,12 @@ const events = (io, socket) => {
     });
   });
 
-  socket.on("create_new_room", (playerData) => {
-    const room = game.createNewRoom(30);
+  socket.on("create_new_room", (data) => {
+    const { roomData, playerData } = data;
     const { name, position } = playerData;
+    const { capacity } = roomData;
+
+    const room = game.createNewRoom(capacity);
     const id = socket.id;
 
     const playerObj = {
