@@ -1,9 +1,11 @@
+import RoleSelector from './RoleSelector';
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
 function App() {
   const endpoint = process.env.REACT_APP_SOCKET_ENDPOINT || "http://localhost:4000/";
   const defaultCapacity = 1;
+
 
   const [currentScreen, setCurrentScreen] = useState('login');
   const [error, setError] = useState("");
@@ -13,8 +15,24 @@ function App() {
   const [roomCode, setRoomCode] = useState("");
   const [roomInput, setRoomInput] = useState("");
   const [name, setName] = useState("");
+  const [playerInfo, setPlayerInfo] = useState({});
+  const [roles, setRoles] = useState({});
+  const [availableRoles, setAvailableRoles] = useState([]);
   const [capacity, setCapacity] = useState(defaultCapacity);
   const [playerList, setPlayerList] = useState([]);
+  const [playerRole, setPlayerRole] = useState("");
+  const [gameStarted, setGameStarted] = useState(false);
+
+  useEffect(() => {
+    fetch(`${endpoint}werewolf/roles`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch available roles');
+        else return res.json();
+      })
+      .then(data => {
+        setAvailableRoles(data.roles);
+      });
+  }, []);
 
   useEffect(() => {
     const newSocket = io(endpoint, { autoConnect: false });
@@ -30,6 +48,19 @@ function App() {
   }, [currentScreen]);
 
   useEffect(() => {
+    playerList.forEach((player) => {
+      if (player.id === playerInfo.id && player.position !== playerInfo.position) {
+        const newPlayerInfo = {
+          name: player.name,
+          id: player.id,
+          position: player.position
+        };
+        setPlayerInfo(newPlayerInfo);
+      }
+    });
+  }, [playerList]);
+
+  useEffect(() => {
     if (socket) {
       const updateEvents = ["player_joined", "player_left"];
 
@@ -37,6 +68,16 @@ function App() {
         socket.on(event, (players) => {
           setPlayerList(players);
         });
+      });
+
+      socket.on("game_started_player", (data) => {
+        setGameStarted(true);
+        setPlayerRole(data.playerRole);
+        setCurrentScreen("gamePlayer");
+
+        setConnected(false);
+        setLoggedIn(false);
+        socket.disconnect();
       });
     }
   }, [socket]);
@@ -46,11 +87,16 @@ function App() {
     setCurrentScreen("roomConfig");
   }
 
+  function isHost() {
+    return playerInfo.position === "host";
+  }
+
   function createRoom() {
     if (socket) {
       socket.connect();
       const roomData = {
-        capacity: capacity,
+        capacity: parseInt(capacity),
+        roles: roles
       };
 
       const playerData = {
@@ -58,13 +104,18 @@ function App() {
         position: "host",
       };
 
-      setConnected(true);
-      setCurrentScreen("room");
       socket.emit("create_new_room", { roomData: roomData, playerData: playerData});
 
       socket.on("room_created", (room) => {
+        setConnected(true);
+        setCurrentScreen("room");
         setRoomCode(room.code.toString());
         setPlayerList(room.players);
+        setPlayerInfo(room.joinedPlayer);
+      });
+
+      socket.on("error", (error) => {
+        setError(error);
       });
     }
   }
@@ -91,6 +142,7 @@ function App() {
         setCurrentScreen("room");
         setRoomCode(room.code.toString());
         setPlayerList(room.players);
+        setPlayerInfo(room.joinedPlayer);
       });
 
       socket.on("error", (error) => {
@@ -107,7 +159,28 @@ function App() {
         setConnected(false);
         setRoomCode("");
         setPlayerList([]);
+        setPlayerInfo({});
         setCurrentScreen("joinRoom");
+      });
+
+      socket.on("error", (error) => {
+        setError(error);
+      });
+    }
+  }
+
+  function startGame() {
+    if (socket) {
+      socket.emit("start_game", roomCode);
+
+      socket.on("game_started_host", (data) => {
+        setGameStarted(true);
+        setPlayerList(data.players);
+        setCurrentScreen("gameHost");
+
+        setConnected(false);
+        setLoggedIn(false);
+        socket.disconnect();
       });
 
       socket.on("error", (error) => {
@@ -119,6 +192,7 @@ function App() {
   function backToSelect() {
     setLoggedIn(false);
     setCurrentScreen("login");
+    setRoles({});
   }
 
   const screens = {
@@ -148,8 +222,9 @@ function App() {
       <div>
         <p>
           <label htmlFor="capacity">Capacity:</label>
-          <input name="capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} disabled={!loggedIn || connected} />
+          <input id="capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} disabled={!loggedIn || connected} />
         </p>
+        <RoleSelector availableRoles={availableRoles} roles={roles} setRoles={setRoles} />
         <p>
           <button onClick={createRoom} disabled={!loggedIn || connected}>Create room</button>
         </p>
@@ -164,6 +239,21 @@ function App() {
           ))}
         </ul>
         {connected && <button onClick={leaveRoom}>Leave Room</button>}
+        {connected && isHost() && <button onClick={startGame}>Start Game</button>}
+      </div>
+    ),
+    gameHost: (
+      <div>
+        <h1>{roomCode} - Started Game</h1>
+        <ul>
+          {playerList.map((player, index) => player.position !== "host" && <li key={index}>{player.name} - {player.role}</li>)}
+        </ul>
+      </div>
+    ),
+    gamePlayer: (
+      <div>
+        <h1>{roomCode} - {name}</h1>
+        <p>Role: {playerRole}</p>
       </div>
     )
   };
@@ -177,6 +267,8 @@ function App() {
       {currentScreen === 'joinRoom' && screens.joinRoom}
       {currentScreen === 'room' && screens.room}
       {currentScreen === 'roomConfig' && screens.roomConfig}
+      {currentScreen === 'gameHost' && screens.gameHost}
+      {currentScreen === 'gamePlayer' && screens.gamePlayer}
     </div>
   );
 }

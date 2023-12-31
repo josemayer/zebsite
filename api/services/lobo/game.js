@@ -1,16 +1,17 @@
 const Room = require('./Room');
 const Player = require('./Player');
+const WerewolfRoom = require('./WerewolfRoom');
 
 const activeRooms = [];
 
-function createNewRoom(capacity) {
+function createNewRoom(capacity, roles) {
   try {
     let roomId = generateRoomId();
-    const room = new Room(roomId, capacity);
+    const room = new WerewolfRoom(roomId, capacity, roles);
     activeRooms.push(room);
     return room;
   } catch (e) {
-    throw new Error('No available rooms');
+    throw new Error(e);
     return undefined;
   }
 }
@@ -57,6 +58,17 @@ function leaveRoom(roomId, playerId) {
   return room;
 }
 
+function startGame(roomId) {
+  if (!isActiveRoom(roomId)) {
+    throw new Error('Room does not exist');
+  }
+
+  const room = activeRooms.find(room => room.code === roomId);
+  room.assignRoles();
+
+  return room;
+}
+
 function isActiveRoom(roomId) {
   if (activeRooms.find(room => room.code === roomId) !== undefined) {
     return true;
@@ -85,5 +97,6 @@ module.exports = {
   createNewRoom,
   deleteRoom,
   joinRoom,
-  leaveRoom
+  leaveRoom,
+  startGame
 };

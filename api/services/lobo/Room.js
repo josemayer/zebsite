@@ -45,6 +45,9 @@ class Room {
     return this.#players.map((p) => p.toObject());
   }
 
+  playersWithoutHost() {
+    return this.#players.filter((p) => !p.isHost());
+  }
   get code() {
     return this.#code;
   }

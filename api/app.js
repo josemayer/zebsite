@@ -8,6 +8,7 @@ var championsQuotesRouter = require('./routes/championsQuotes');
 var loginRouter = require('./routes/login');
 var registerRouter = require('./routes/register');
 var verifyLoginRouter = require('./routes/verifyLogin');
+var werewolfRouter = require('./routes/werewolf');
 
 var app = express();
 
@@ -31,5 +32,6 @@ app.use('/championsQuotes', championsQuotesRouter);
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 app.use('/verifyLogin', verifyLoginRouter);
+app.use('/werewolf', werewolfRouter);
 
 module.exports = app;
