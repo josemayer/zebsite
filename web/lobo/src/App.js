@@ -39,6 +39,7 @@ function App() {
     setSocket(newSocket);
 
     return () => {
+      newSocket.emit("close_app");
       newSocket.disconnect();
     };
   }, []);

@@ -1,7 +1,7 @@
 const game = require("./services/lobo/game");
 
 const events = (io, socket) => {
-  socket.on("disconnecting", () => {
+  socket.on("close_app", () => {
     const rooms = socket.rooms;
     rooms.forEach((room) => {
       try {
