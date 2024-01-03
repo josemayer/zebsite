@@ -1,19 +1,21 @@
 const game = require("./services/lobo/game");
 
 const events = (io, socket) => {
-  socket.on("close_app", () => {
-    const rooms = socket.rooms;
-    rooms.forEach((room) => {
-      try {
-        if (room !== socket.id) {
-          const roomObj = game.leaveRoom(room, socket.id);
-          socket.leave(room);
-          socket.broadcast.to(room).emit("player_left", roomObj.players);
+  socket.on("disconnecting", (reason) => {
+    if (reason == "transport close") {
+      const rooms = socket.rooms;
+      rooms.forEach((room) => {
+        try {
+          if (room !== socket.id) {
+            const roomObj = game.leaveRoom(room, socket.id);
+            socket.leave(room);
+            socket.broadcast.to(room).emit("player_left", roomObj.players);
+          }
+        } catch (error) {
+          console.error(error.message);
         }
-      } catch (error) {
-        console.error(error.message);
-      }
-    });
+      });
+    }
   });
 
   socket.on("create_new_room", (data) => {
