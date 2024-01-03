@@ -45,11 +45,20 @@ server.on('listening', onListening);
  */
 
 var io = socket(listened, {
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 30 * 60 * 1000,
+    skipMiddlewares: true,
+  },
   cors: {
     origin: '*',
   }
 });
 io.on('connection', (socket) => {
+  if (socket.recovered) {
+    console.log('recovered');
+  } else {
+    console.log('new connection with id ' + socket.id);
+  }
   events(io, socket);
 });
 

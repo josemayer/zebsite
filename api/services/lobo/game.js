@@ -63,8 +63,12 @@ function startGame(roomId) {
     throw new Error('Room does not exist');
   }
 
-  const room = activeRooms.find(room => room.code === roomId);
-  room.assignRoles();
+  try {
+    const room = activeRooms.find(room => room.code === roomId);
+    room.assignRoles();
+  } catch (e) {
+    throw new Error(e);
+  }
 
   return room;
 }

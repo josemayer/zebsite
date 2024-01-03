@@ -18,6 +18,10 @@ class WerewolfRoom extends Room {
   }
 
   assignRoles() {
+    if (this.players.length !== this.capacity) {
+      throw new Error('Not all players have joined yet');
+    }
+
     const roleArray = this.#frequencyObjToArray(this.#roles);
     const shuffledRoles = this.#shuffle(roleArray);
     this.playersWithoutHost().forEach((player, index) => {
