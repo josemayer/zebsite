@@ -2,7 +2,7 @@ const game = require("./services/lobo/game");
 
 const events = (io, socket) => {
   socket.on("disconnecting", (reason) => {
-    if (reason == "transport close") {
+    if (reason != "transport close") {
       const rooms = socket.rooms;
       rooms.forEach((room) => {
         try {
