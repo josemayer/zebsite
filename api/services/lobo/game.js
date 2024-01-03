@@ -66,11 +66,11 @@ function startGame(roomId) {
   try {
     const room = activeRooms.find(room => room.code === roomId);
     room.assignRoles();
+    return room;
   } catch (e) {
     throw new Error(e);
+    return undefined;
   }
-
-  return room;
 }
 
 function isActiveRoom(roomId) {

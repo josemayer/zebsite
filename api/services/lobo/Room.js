@@ -48,8 +48,13 @@ class Room {
   playersWithoutHost() {
     return this.#players.filter((p) => !p.isHost());
   }
+
   get code() {
     return this.#code;
+  }
+  
+  get capacity() {
+    return this.#capacity;
   }
 
   #isFull() {
