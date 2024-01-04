@@ -1,6 +1,6 @@
-const Room = require('./Room');
-const Player = require('./Player');
-const WerewolfRoom = require('./WerewolfRoom');
+const Room = require("./Room");
+const Player = require("./Player");
+const WerewolfRoom = require("./WerewolfRoom");
 
 const activeRooms = [];
 
@@ -11,17 +11,17 @@ function createNewRoom(capacity, roles) {
     activeRooms.push(room);
     return room;
   } catch (e) {
-    throw new Error(e);
+    throw e;
     return undefined;
   }
 }
 
 function deleteRoom(roomId) {
   if (!isActiveRoom(roomId)) {
-    throw new Error('Room does not exist');
+    throw new Error("Room does not exist");
   }
 
-  const roomIndex = activeRooms.findIndex(room => room.code === roomId);
+  const roomIndex = activeRooms.findIndex((room) => room.code === roomId);
   activeRooms.splice(roomIndex, 1);
 }
 
@@ -31,13 +31,13 @@ function createPlayer(name, id, position) {
 
 function joinRoom(roomId, playerData) {
   if (!isActiveRoom(roomId)) {
-    throw new Error('Room does not exist');
+    throw new Error("Room does not exist");
   }
 
   const { name, id, position } = playerData;
   const player = createPlayer(name, id, position);
 
-  const room = activeRooms.find(room => room.code === roomId);
+  const room = activeRooms.find((room) => room.code === roomId);
   room.addPlayer(player);
 
   return room;
@@ -45,10 +45,10 @@ function joinRoom(roomId, playerData) {
 
 function leaveRoom(roomId, playerId) {
   if (!isActiveRoom(roomId)) {
-    throw new Error('Room does not exist');
+    throw new Error("Room does not exist");
   }
 
-  const room = activeRooms.find(room => room.code === roomId);
+  const room = activeRooms.find((room) => room.code === roomId);
   room.removePlayer(playerId);
 
   if (room.isEmpty()) {
@@ -60,21 +60,21 @@ function leaveRoom(roomId, playerId) {
 
 function startGame(roomId) {
   if (!isActiveRoom(roomId)) {
-    throw new Error('Room does not exist');
+    throw new Error("Room does not exist");
   }
 
   try {
-    const room = activeRooms.find(room => room.code === roomId);
+    const room = activeRooms.find((room) => room.code === roomId);
     room.assignRoles();
     return room;
   } catch (e) {
-    throw new Error(e);
+    throw e;
     return undefined;
   }
 }
 
 function isActiveRoom(roomId) {
-  if (activeRooms.find(room => room.code === roomId) !== undefined) {
+  if (activeRooms.find((room) => room.code === roomId) !== undefined) {
     return true;
   }
   return false;
@@ -91,7 +91,7 @@ function generateRoomId() {
   }
 
   if (tries === 0) {
-    throw new Error('No available rooms');
+    throw new Error("No available rooms");
   }
 
   return roomId;
@@ -102,5 +102,5 @@ module.exports = {
   deleteRoom,
   joinRoom,
   leaveRoom,
-  startGame
+  startGame,
 };
