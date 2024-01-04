@@ -49,6 +49,7 @@ var io = socket(listened, {
     maxDisconnectionDuration: 30 * 60 * 1000,
     skipMiddlewares: true,
   },
+  pingTimeout: 5 * 1000,
   cors: {
     origin: '*',
   }
