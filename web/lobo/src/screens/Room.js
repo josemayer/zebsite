@@ -9,14 +9,14 @@ function Room(props) {
   const {
     socket,
     playerList,
-    roomCode,
+    roomInfo,
     playerInfo,
     setPlayerList,
     setPlayerInfo,
     setError,
     setGameStarted,
     setPlayerRole,
-    setRoomCode,
+    setRoomInfo,
     isHost,
   } = props;
 
@@ -60,11 +60,11 @@ function Room(props) {
 
   function leaveRoom() {
     if (socket) {
-      socket.emit("leave_room", roomCode);
+      socket.emit("leave_room", roomInfo.code);
 
       socket.on("room_left", () => {
         setConnected(false);
-        setRoomCode("");
+        setRoomInfo({});
         setPlayerList([]);
         setPlayerInfo({});
         setCurrentScreen("joinRoom");
@@ -78,7 +78,7 @@ function Room(props) {
 
   function startGame() {
     if (socket) {
-      socket.emit("start_game", roomCode);
+      socket.emit("start_game", roomInfo.code);
 
       socket.on("game_started_host", (data) => {
         setGameStarted(true);
@@ -98,7 +98,9 @@ function Room(props) {
 
   return (
     <div>
-      <h1>Sala {roomCode}</h1>
+      <h1>
+        Sala {roomInfo.code} ({`${playerList.length}/${roomInfo.capacity}`})
+      </h1>
       <ul>
         {playerList.map((player, index) => (
           <li

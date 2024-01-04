@@ -36,7 +36,13 @@ const events = (io, socket) => {
       game.joinRoom(room.code, playerObj);
       socket.join(room.code);
 
-      socket.emit("room_created", { code: room.code, players: room.players, roles: room.roles, joinedPlayer: playerObj });
+      socket.emit("room_created", {
+        code: room.code,
+        capacity: room.capacity,
+        players: room.players,
+        roles: room.roles,
+        joinedPlayer: playerObj,
+      });
     } catch (error) {
       socket.emit("error", error.message);
     }
@@ -56,7 +62,12 @@ const events = (io, socket) => {
       const roomCodeNumb = parseInt(roomCode);
       const room = game.joinRoom(roomCodeNumb, playerObj);
       socket.join(roomCodeNumb);
-      socket.emit("room_joined", { code: room.code, players: room.players, joinedPlayer: playerObj});
+      socket.emit("room_joined", {
+        code: room.code,
+        capacity: room.capacity,
+        players: room.players,
+        joinedPlayer: playerObj,
+      });
       socket.broadcast.to(roomCodeNumb).emit("player_joined", room.players);
     } catch (error) {
       socket.emit("error", error.message);
@@ -88,13 +99,15 @@ const events = (io, socket) => {
         if (player.position === "host") {
           io.to(player.id).emit("game_started_host", { players: players });
         } else {
-          io.to(player.id).emit("game_started_player", { playerRole: player.role });
+          io.to(player.id).emit("game_started_player", {
+            playerRole: player.role,
+          });
         }
       });
     } catch (error) {
       socket.emit("error", error.message);
     }
   });
-}
+};
 
 module.exports = events;

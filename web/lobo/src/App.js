@@ -21,7 +21,7 @@ function App() {
   const [socket, setSocket] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [connected, setConnected] = useState(false);
-  const [roomCode, setRoomCode] = useState("");
+  const [roomInfo, setRoomInfo] = useState({});
   const [name, setName] = useState("");
   const [playerInfo, setPlayerInfo] = useState({});
   const [playerList, setPlayerList] = useState([]);
@@ -96,7 +96,7 @@ function App() {
         {currentScreen === "joinRoom" && (
           <JoinRoom
             playerName={name}
-            setRoomCode={setRoomCode}
+            setRoomInfo={setRoomInfo}
             socket={socket}
             setPlayerList={setPlayerList}
             setPlayerInfo={setPlayerInfo}
@@ -110,9 +110,9 @@ function App() {
             setPlayerList={setPlayerList}
             setPlayerInfo={setPlayerInfo}
             setError={setTranslatedError}
-            roomCode={roomCode}
+            roomInfo={roomInfo}
             playerInfo={playerInfo}
-            setRoomCode={setRoomCode}
+            setRoomInfo={setRoomInfo}
             setGameStarted={setGameStarted}
             setPlayerRole={setPlayerRole}
             isHost={isHost}
@@ -127,15 +127,15 @@ function App() {
             setPlayerInfo={setPlayerInfo}
             setError={setTranslatedError}
             endpoint={endpoint}
-            setRoomCode={setRoomCode}
+            setRoomInfo={setRoomInfo}
           />
         )}
         {currentScreen === "gameHost" && (
-          <GameHost roomCode={roomCode} playerList={playerList} />
+          <GameHost roomCode={roomInfo.code} playerList={playerList} />
         )}
         {currentScreen === "gamePlayer" && (
           <GamePlayer
-            roomCode={roomCode}
+            roomCode={roomInfo.code}
             playerName={name}
             playerRole={playerRole}
           />

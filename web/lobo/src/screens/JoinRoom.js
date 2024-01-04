@@ -13,7 +13,7 @@ function JoinRoom(props) {
     setPlayerInfo,
     setError,
     playerName,
-    setRoomCode,
+    setRoomInfo,
   } = props;
 
   const [roomInput, setRoomInput] = useState("");
@@ -38,7 +38,7 @@ function JoinRoom(props) {
         setLoggedIn(true);
         setConnected(true);
         setCurrentScreen("room");
-        setRoomCode(room.code.toString());
+        setRoomInfo({ code: room.code.toString(), capacity: room.capacity });
         setPlayerList(room.players);
         setPlayerInfo(room.joinedPlayer);
       });

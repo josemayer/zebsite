@@ -16,7 +16,7 @@ function Room(props) {
     setError,
     endpoint,
     playerName,
-    setRoomCode,
+    setRoomInfo,
   } = props;
 
   const defaultCapacity = 1;
@@ -57,7 +57,7 @@ function Room(props) {
       socket.on("room_created", (room) => {
         setConnected(true);
         setCurrentScreen("room");
-        setRoomCode(room.code.toString());
+        setRoomInfo({ code: room.code, capacity: room.capacity });
         setPlayerList(room.players);
         setPlayerInfo(room.joinedPlayer);
       });
