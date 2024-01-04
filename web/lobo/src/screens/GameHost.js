@@ -1,7 +1,8 @@
 function GameHost(props) {
   return (
     <div>
-      <h1>{props.roomCode} - Started Game</h1>
+      <h1>Sala {props.roomCode}</h1>
+      <h2>Funções</h2>
       <ul>
         {props.playerList.map(
           (player, index) =>
