@@ -32,6 +32,8 @@ function App() {
     const newSocket = io(endpoint, { autoConnect: false });
     setSocket(newSocket);
 
+    document.title = "Jogo do Lobo";
+
     return () => {
       newSocket.disconnect();
     };
