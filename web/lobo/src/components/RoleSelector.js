@@ -1,8 +1,18 @@
-import { useState } from "react";
-import NumericInput from './NumericInput';
+import { useState, useEffect } from "react";
+import NumericInput from "./NumericInput";
 
 export default function RoleSelector(props) {
-  const { availableRoles, roles, setRoles } = props;
+  const { availableRoles, roles, setRoles, setCapacity } = props;
+
+  useEffect(() => {
+    let capacity = 1;
+    Object.entries(roles).forEach((entry) => {
+      const [roleName, quantity] = entry;
+      capacity += quantity;
+    });
+
+    setCapacity(capacity);
+  }, [roles]);
 
   function selectRole(event, roleName) {
     const newRoles = { ...roles };
@@ -21,8 +31,7 @@ export default function RoleSelector(props) {
 
     if (event.target.value !== "")
       newRoles[roleName] = parseInt(event.target.value);
-    else
-      newRoles[roleName] = 0;
+    else newRoles[roleName] = 0;
     setRoles(newRoles);
   }
 
@@ -33,15 +42,27 @@ export default function RoleSelector(props) {
   return (
     <div>
       {availableRoles.map((role, index) => {
-          return (
-            <div key={index}>
-              <input type="checkbox" onChange={(e) => selectRole(e, role.name)} id={role.name} value={role.name} />
-              <label htmlFor={role.name}>{role.title}</label>
+        return (
+          <div key={index}>
+            <input
+              type="checkbox"
+              onChange={(e) => selectRole(e, role.name)}
+              id={role.name}
+              value={role.name}
+            />
+            <label htmlFor={role.name}>{role.title}</label>
 
-              {isRoleSelected(role.name) && <NumericInput placeholder="Quantidade" min="1" onChange={(e) => changeRoleQuantity(e, role.name)} value={roles[role.name]} />}
-            </div>
-          );
-        })}
+            {isRoleSelected(role.name) && (
+              <NumericInput
+                placeholder="Quantidade"
+                min="1"
+                onChange={(e) => changeRoleQuantity(e, role.name)}
+                value={roles[role.name]}
+              />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

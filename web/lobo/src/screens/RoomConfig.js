@@ -70,20 +70,22 @@ function Room(props) {
 
   return (
     <div>
-      <p>
-        <label htmlFor="capacity">Capacidade:</label>
-        <TextInput
-          id="capacity"
-          value={capacity}
-          onChange={(e) => setCapacity(e.target.value)}
-          disabled={!loggedIn || connected}
-        />
-      </p>
+      <div>
+        <div>
+          <label htmlFor="capacity">Capacidade da sala:</label>
+          <TextInput id="capacity" value={capacity} disabled={true} />
+        </div>
+        <div>
+          A capacidade é calculada automaticamente e leva em conta a quantidade
+          das funções e o anfitrião.
+        </div>
+      </div>
       <p>Selecione as posições desejadas e especifique a quantidade:</p>
       <RoleSelector
         availableRoles={availableRoles}
         roles={roles}
         setRoles={setRoles}
+        setCapacity={setCapacity}
       />
       <p>
         <Button handleClick={createRoom} disabled={!loggedIn || connected}>
