@@ -113,7 +113,12 @@ function Room(props) {
       </ul>
       {connected && <Button handleClick={leaveRoom}>Sair da sala</Button>}
       {connected && isHost() && (
-        <Button handleClick={startGame}>Começar o jogo</Button>
+        <Button
+          handleClick={startGame}
+          disabled={playerList.length < roomInfo.capacity}
+        >
+          Começar o jogo
+        </Button>
       )}
     </div>
   );
