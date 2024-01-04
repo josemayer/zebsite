@@ -98,7 +98,7 @@ function Room(props) {
 
   return (
     <div>
-      <h1>{roomCode}</h1>
+      <h1>Sala {roomCode}</h1>
       <ul>
         {playerList.map((player, index) => (
           <li
@@ -109,9 +109,9 @@ function Room(props) {
           </li>
         ))}
       </ul>
-      {connected && <Button handleClick={leaveRoom}>Leave Room</Button>}
+      {connected && <Button handleClick={leaveRoom}>Sair da sala</Button>}
       {connected && isHost() && (
-        <Button handleClick={startGame}>Start Game</Button>
+        <Button handleClick={startGame}>Começar o jogo</Button>
       )}
     </div>
   );

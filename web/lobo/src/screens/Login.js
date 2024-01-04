@@ -25,18 +25,19 @@ function Login(props) {
     <div>
       <p>
         <TextInput
-          placeholder="Player name"
+          placeholder="Nome"
           value={playerInput}
           onChange={(e) => setPlayerInput(e.target.value)}
           disabled={loggedIn}
         />
       </p>
+      <p>Entrar como...</p>
       <p>
         <Button handleClick={handleHost} disabled={loggedIn}>
-          Host
+          Anfitrião
         </Button>
         <Button handleClick={handlePlayer} disabled={loggedIn}>
-          Player
+          Jogador
         </Button>
       </p>
     </div>

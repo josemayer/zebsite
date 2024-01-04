@@ -53,7 +53,7 @@ function JoinRoom(props) {
     <div>
       <p>
         <TextInput
-          placeholder="Room code"
+          placeholder="Código da sala"
           value={roomInput}
           onChange={(e) => setRoomInput(e.target.value)}
           disabled={!loggedIn || connected}
@@ -61,10 +61,10 @@ function JoinRoom(props) {
       </p>
       <p>
         <Button handleClick={backToSelect} disabled={!loggedIn || connected}>
-          Back
+          Voltar
         </Button>
         <Button handleClick={joinRoom} disabled={!loggedIn || connected}>
-          Go to room
+          Entrar na sala
         </Button>
       </p>
     </div>

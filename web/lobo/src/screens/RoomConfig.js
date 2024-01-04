@@ -71,7 +71,7 @@ function Room(props) {
   return (
     <div>
       <p>
-        <label htmlFor="capacity">Capacity:</label>
+        <label htmlFor="capacity">Capacidade:</label>
         <TextInput
           id="capacity"
           value={capacity}
@@ -79,6 +79,7 @@ function Room(props) {
           disabled={!loggedIn || connected}
         />
       </p>
+      <p>Selecione as posições desejadas e especifique a quantidade:</p>
       <RoleSelector
         availableRoles={availableRoles}
         roles={roles}
@@ -86,7 +87,7 @@ function Room(props) {
       />
       <p>
         <Button handleClick={createRoom} disabled={!loggedIn || connected}>
-          Create room
+          Criar sala
         </Button>
       </p>
     </div>

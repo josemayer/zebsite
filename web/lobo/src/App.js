@@ -5,6 +5,8 @@ import RoomConfig from "./screens/RoomConfig";
 import GameHost from "./screens/GameHost";
 import GamePlayer from "./screens/GamePlayer";
 
+import Error from "./components/Error";
+
 import { useState, useEffect, createContext } from "react";
 import io from "socket.io-client";
 
@@ -43,6 +45,36 @@ function App() {
     return playerInfo.position === "host";
   }
 
+  function setTranslatedError(error) {
+    switch (error) {
+      case "Room does not exist":
+        setError("A sala não existe");
+        break;
+      case "Room is full":
+        setError("A sala está cheia");
+        break;
+      case "No available rooms":
+        setError("Não há códigos de sala disponíveis");
+        break;
+      case "Player already in room":
+        setError("O jogador já está na sala");
+        break;
+      case "Player not found in room":
+        setError("Jogador não encontrado na sala");
+        break;
+      case "Roles quantity is not equal to capacity without host":
+        setError("A quantidade de funções não é igual à capacidade sem o host");
+        break;
+      case "Not all players have joined yet":
+        setError(
+          "Ainda não entraram jogadores suficientes para iniciar o jogo"
+        );
+        break;
+      default:
+        setError(error);
+    }
+  }
+
   return (
     <div className="App">
       <UserStateContext.Provider
@@ -55,8 +87,8 @@ function App() {
           setCurrentScreen,
         }}
       >
-        <h1>Socket.io Client</h1>
-        <div style={{ color: "red" }}>{error}</div>
+        <h1>Lobo</h1>
+        <Error error={error} />
 
         {currentScreen === "login" && <Login setPlayerName={setName} />}
         {currentScreen === "joinRoom" && (
@@ -66,7 +98,7 @@ function App() {
             socket={socket}
             setPlayerList={setPlayerList}
             setPlayerInfo={setPlayerInfo}
-            setError={setError}
+            setError={setTranslatedError}
           />
         )}
         {currentScreen === "room" && (
@@ -75,7 +107,7 @@ function App() {
             playerList={playerList}
             setPlayerList={setPlayerList}
             setPlayerInfo={setPlayerInfo}
-            setError={setError}
+            setError={setTranslatedError}
             roomCode={roomCode}
             playerInfo={playerInfo}
             setRoomCode={setRoomCode}
@@ -91,7 +123,7 @@ function App() {
             playerList={playerList}
             setPlayerList={setPlayerList}
             setPlayerInfo={setPlayerInfo}
-            setError={setError}
+            setError={setTranslatedError}
             endpoint={endpoint}
             setRoomCode={setRoomCode}
           />
