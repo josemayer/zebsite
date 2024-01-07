@@ -10,7 +10,6 @@ function Room(props) {
 
   const {
     socket,
-    playerList,
     setPlayerList,
     setPlayerInfo,
     setError,
@@ -34,7 +33,7 @@ function Room(props) {
       .then((data) => {
         setAvailableRoles(data.roles);
       });
-  }, []);
+  }, [endpoint]);
 
   function createRoom() {
     if (socket) {

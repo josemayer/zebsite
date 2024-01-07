@@ -1,5 +1,5 @@
 import Button from "../components/Button";
-import { useState, useEffect, useContext } from "react";
+import { useEffect, useContext } from "react";
 import { UserStateContext } from "../App";
 
 function Room(props) {
@@ -14,7 +14,6 @@ function Room(props) {
     setPlayerList,
     setPlayerInfo,
     setError,
-    setGameStarted,
     setPlayerRole,
     setRoomInfo,
     isHost,
@@ -34,7 +33,7 @@ function Room(props) {
         setPlayerInfo(newPlayerInfo);
       }
     });
-  }, [playerList]);
+  }, [playerInfo.id, playerInfo.position, playerList, setPlayerInfo]);
 
   useEffect(() => {
     if (socket) {
@@ -47,7 +46,6 @@ function Room(props) {
       });
 
       socket.on("game_started_player", (data) => {
-        setGameStarted(true);
         setPlayerRole(data.playerRole);
         setCurrentScreen("gamePlayer");
 
@@ -56,7 +54,14 @@ function Room(props) {
         socket.disconnect();
       });
     }
-  }, [socket]);
+  }, [
+    socket,
+    setPlayerList,
+    setPlayerRole,
+    setCurrentScreen,
+    setConnected,
+    setLoggedIn,
+  ]);
 
   function leaveRoom() {
     if (socket) {
@@ -81,7 +86,6 @@ function Room(props) {
       socket.emit("start_game", roomInfo.code);
 
       socket.on("game_started_host", (data) => {
-        setGameStarted(true);
         setPlayerList(data.players);
         setCurrentScreen("gameHost");
 

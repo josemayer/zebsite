@@ -26,7 +26,6 @@ function App() {
   const [playerInfo, setPlayerInfo] = useState({});
   const [playerList, setPlayerList] = useState([]);
   const [playerRole, setPlayerRole] = useState("");
-  const [gameStarted, setGameStarted] = useState(false);
 
   useEffect(() => {
     const newSocket = io(endpoint, { autoConnect: false });
@@ -37,7 +36,7 @@ function App() {
     return () => {
       newSocket.disconnect();
     };
-  }, []);
+  }, [endpoint]);
 
   useEffect(() => {
     setError("");
@@ -113,7 +112,6 @@ function App() {
             roomInfo={roomInfo}
             playerInfo={playerInfo}
             setRoomInfo={setRoomInfo}
-            setGameStarted={setGameStarted}
             setPlayerRole={setPlayerRole}
             isHost={isHost}
           />
@@ -122,7 +120,6 @@ function App() {
           <RoomConfig
             playerName={name}
             socket={socket}
-            playerList={playerList}
             setPlayerList={setPlayerList}
             setPlayerInfo={setPlayerInfo}
             setError={setTranslatedError}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import NumericInput from "./NumericInput";
 
 export default function RoleSelector(props) {
@@ -7,12 +7,12 @@ export default function RoleSelector(props) {
   useEffect(() => {
     let capacity = 1;
     Object.entries(roles).forEach((entry) => {
-      const [roleName, quantity] = entry;
+      const quantity = entry[1];
       capacity += quantity;
     });
 
     setCapacity(capacity);
-  }, [roles]);
+  }, [roles, setCapacity]);
 
   function selectRole(event, roleName) {
     const newRoles = { ...roles };
