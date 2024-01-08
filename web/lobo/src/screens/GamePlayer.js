@@ -18,7 +18,7 @@ function GamePlayer(props) {
     return () => {
       setRoleInfo({});
     };
-  }, [endpoint]);
+  }, [endpoint, playerRole]);
 
   return (
     <div className="flex flex-col w-[300px]">

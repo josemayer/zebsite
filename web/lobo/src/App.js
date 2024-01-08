@@ -79,7 +79,7 @@ function App() {
   }
 
   return (
-    <div className="flex justify-center items-center h-screen font-['Salsa'] bg-purple">
+    <div className="flex justify-center items-center h-screen font-['Salsa'] bg-purple relative">
       <UserStateContext.Provider
         value={{
           loggedIn,
