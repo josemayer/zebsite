@@ -15,6 +15,9 @@ function Login(props) {
     if (playerInput === "") {
       setError("O nome não pode ser vazio");
       return false;
+    } else if (playerInput.length > 20) {
+      setError("O nome não pode ter mais de 20 caracteres");
+      return false;
     }
     return true;
   }

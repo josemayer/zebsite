@@ -23,7 +23,17 @@ function JoinRoom(props) {
     setCurrentScreen("login");
   }
 
+  function checkInput() {
+    if (roomInput === "") {
+      setError("O código da sala não pode ser vazio");
+      return false;
+    }
+    return true;
+  }
+
   function joinRoom() {
+    if (!checkInput()) return;
+
     if (socket) {
       socket.connect();
       const playerData = {
