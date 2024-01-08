@@ -118,7 +118,8 @@ function Room(props) {
               player.position === "host" ? "text-yellow mb-4" : "text-white"
             }
           >
-            {player.name} {player.position === "host" ? "(Anfitrião)" : ""}
+            {player.name} {player.position === "host" ? "(Anfitrião)" : ""}{" "}
+            {player.id === playerInfo.id ? "(Você)" : ""}
           </li>
         ))}
       </ul>
