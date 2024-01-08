@@ -30,11 +30,22 @@ function App() {
   const [playerRole, setPlayerRole] = useState("");
 
   useEffect(() => {
-    const newSocket = io(endpoint, { autoConnect: false });
+    const newSocket = io(endpoint, {
+      autoConnect: false,
+      closeOnBeforeunload: false,
+    });
     setSocket(newSocket);
+
+    const handleBeforeUnload = (e) => {
+      newSocket.emit("manual_disconnect");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       newSocket.disconnect();
+      setSocket(null);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [endpoint]);
 
