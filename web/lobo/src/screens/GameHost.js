@@ -50,9 +50,9 @@ function GameHost(props) {
   }, [openModal]);
 
   return (
-    <div className="flex flex-col w-[300px]">
+    <div className="flex flex-col">
       <Modal opened={openModal} close={() => setOpenModal(false)}>
-        <div className="flex flex-col items-center max-w-[300px]">
+        <div className="flex flex-col items-center">
           <div className="w-[150px] mb-8">
             <img
               src={`${endpoint}werewolf/${modalInfo.name}.svg`}

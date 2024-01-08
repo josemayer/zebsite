@@ -1,11 +1,11 @@
 function Button(props) {
-  const { disabled } = props;
+  const { disabled, className } = props;
 
   return (
     <button
       className={`bg-${props.color} py-2 px-4 rounded-md ${
         disabled ? "opacity-50 cursor-not-allowed" : ""
-      }}`}
+      } ${className}`}
       onClick={props.handleClick}
       disabled={props.disabled}
     >

@@ -2,7 +2,7 @@ function TextInput(props) {
   return (
     <input
       type="text"
-      className={`px-4 w-[${props.width}] py-2 rounded-lg`}
+      className={`px-4 w-full py-2 rounded-lg`}
       value={props.value}
       onChange={props.onChange}
       placeholder={props.placeholder}
@@ -16,7 +16,6 @@ TextInput.defaultProps = {
   onChange: () => {},
   placeholder: "",
   disabled: false,
-  width: "200px",
 };
 
 export default TextInput;

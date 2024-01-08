@@ -33,8 +33,6 @@ function App() {
     const newSocket = io(endpoint, { autoConnect: false });
     setSocket(newSocket);
 
-    document.title = "Jogo do Lobo";
-
     return () => {
       newSocket.disconnect();
     };
@@ -90,7 +88,7 @@ function App() {
           setCurrentScreen,
         }}
       >
-        <div className="flex flex-col justify-center p-4 max-w-[400px]">
+        <div className="flex flex-col justify-center p-4 w-[250px] sm:w-[300px] md:w-[400px]">
           <h1 className="text-3xl text-white text-bold font-['Lemon'] pb-4 text-center">
             Lobo
           </h1>

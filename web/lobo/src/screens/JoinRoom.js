@@ -63,22 +63,26 @@ function JoinRoom(props) {
     <div className="flex flex-col">
       <div className="mb-4">
         <TextInput
-          placeholder="Código da sala"
+          placeholder="Número da sala"
           value={roomInput}
           onChange={(e) => setRoomInput(e.target.value)}
           disabled={!loggedIn || connected}
-          width="300px"
         />
       </div>
-      <div className="flex justify-evenly">
+      <div className="flex flex-col-reverse sm:flex-row justify-evenly">
         <Button
+          className="mb-2 sm:mb-0 sm:mr-2"
           handleClick={backToSelect}
           disabled={!loggedIn || connected}
           color="red"
         >
           Voltar
         </Button>
-        <Button handleClick={joinRoom} disabled={!loggedIn || connected}>
+        <Button
+          className="mb-2 sm:mb-0"
+          handleClick={joinRoom}
+          disabled={!loggedIn || connected}
+        >
           Entrar na sala
         </Button>
       </div>

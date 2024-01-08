@@ -21,7 +21,7 @@ function GamePlayer(props) {
   }, [endpoint, playerRole]);
 
   return (
-    <div className="flex flex-col w-[300px]">
+    <div className="flex flex-col">
       <div className="text-3xl text-center text-white border-b-[1px] pb-2">
         {playerName}
       </div>

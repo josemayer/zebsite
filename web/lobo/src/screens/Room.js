@@ -101,7 +101,7 @@ function Room(props) {
   }
 
   return (
-    <div className="w-[300px] flex flex-col">
+    <div className="flex flex-col">
       <div className="flex justify-between items-center text-3xl text-white border-b-[1px] pb-2 mb-4">
         <span>
           Sala <strong>{roomInfo.code}</strong>
@@ -123,14 +123,15 @@ function Room(props) {
           </li>
         ))}
       </ul>
-      <div className="flex justify-evenly mt-4">
+      <div className="flex flex-col sm:flex-row justify-evenly mt-4">
         {connected && (
-          <Button handleClick={leaveRoom} color="red">
+          <Button className="mb-2 sm:mb-0" handleClick={leaveRoom} color="red">
             Sair da sala
           </Button>
         )}
         {connected && isHost() && (
           <Button
+            className="mb-2 sm:mb-0 ml-0 sm:ml-2"
             handleClick={startGame}
             disabled={playerList.length < roomInfo.capacity}
           >

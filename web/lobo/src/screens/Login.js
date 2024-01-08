@@ -39,8 +39,8 @@ function Login(props) {
   }
 
   return (
-    <div className="bla">
-      <p>
+    <div className="flex flex-col">
+      <div>
         <TextInput
           placeholder="Nome"
           value={playerInput}
@@ -48,7 +48,7 @@ function Login(props) {
           disabled={loggedIn}
           width="300px"
         />
-      </p>
+      </div>
       <div className="text-white text-center py-2">Entrar como...</div>
       <div className="flex justify-evenly">
         <Button handleClick={handleHost} disabled={loggedIn} color="orange">

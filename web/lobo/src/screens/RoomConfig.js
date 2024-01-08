@@ -73,7 +73,7 @@ function Room(props) {
   }
 
   return (
-    <div>
+    <div className="flex flex-col">
       <div className="text-white mb-4">
         <div className="flex items-center mb-2">
           <label htmlFor="capacity" className="mr-4">
