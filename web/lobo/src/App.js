@@ -10,6 +10,8 @@ import Error from "./components/Error";
 import { useState, useEffect, createContext } from "react";
 import io from "socket.io-client";
 
+import "./App.css";
+
 export const UserStateContext = createContext();
 
 function App() {
@@ -77,7 +79,7 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div className="flex justify-center items-center h-screen font-['Salsa'] bg-purple">
       <UserStateContext.Provider
         value={{
           loggedIn,
@@ -88,55 +90,65 @@ function App() {
           setCurrentScreen,
         }}
       >
-        <h1>Lobo</h1>
-        <Error error={error} />
+        <div className="flex flex-col justify-center p-4 max-w-[400px]">
+          <h1 className="text-3xl text-white text-bold font-['Lemon'] pb-4 text-center">
+            Lobo
+          </h1>
+          <Error error={error} />
 
-        {currentScreen === "login" && <Login setPlayerName={setName} />}
-        {currentScreen === "joinRoom" && (
-          <JoinRoom
-            playerName={name}
-            setRoomInfo={setRoomInfo}
-            socket={socket}
-            setPlayerList={setPlayerList}
-            setPlayerInfo={setPlayerInfo}
-            setError={setTranslatedError}
-          />
-        )}
-        {currentScreen === "room" && (
-          <Room
-            socket={socket}
-            playerList={playerList}
-            setPlayerList={setPlayerList}
-            setPlayerInfo={setPlayerInfo}
-            setError={setTranslatedError}
-            roomInfo={roomInfo}
-            playerInfo={playerInfo}
-            setRoomInfo={setRoomInfo}
-            setPlayerRole={setPlayerRole}
-            isHost={isHost}
-          />
-        )}
-        {currentScreen === "roomConfig" && (
-          <RoomConfig
-            playerName={name}
-            socket={socket}
-            setPlayerList={setPlayerList}
-            setPlayerInfo={setPlayerInfo}
-            setError={setTranslatedError}
-            endpoint={endpoint}
-            setRoomInfo={setRoomInfo}
-          />
-        )}
-        {currentScreen === "gameHost" && (
-          <GameHost roomCode={roomInfo.code} playerList={playerList} />
-        )}
-        {currentScreen === "gamePlayer" && (
-          <GamePlayer
-            roomCode={roomInfo.code}
-            playerName={name}
-            playerRole={playerRole}
-          />
-        )}
+          {currentScreen === "login" && (
+            <Login
+              playerName={name}
+              setPlayerName={setName}
+              setError={setError}
+            />
+          )}
+          {currentScreen === "joinRoom" && (
+            <JoinRoom
+              playerName={name}
+              setRoomInfo={setRoomInfo}
+              socket={socket}
+              setPlayerList={setPlayerList}
+              setPlayerInfo={setPlayerInfo}
+              setError={setTranslatedError}
+            />
+          )}
+          {currentScreen === "room" && (
+            <Room
+              socket={socket}
+              playerList={playerList}
+              setPlayerList={setPlayerList}
+              setPlayerInfo={setPlayerInfo}
+              setError={setTranslatedError}
+              roomInfo={roomInfo}
+              playerInfo={playerInfo}
+              setRoomInfo={setRoomInfo}
+              setPlayerRole={setPlayerRole}
+              isHost={isHost}
+            />
+          )}
+          {currentScreen === "roomConfig" && (
+            <RoomConfig
+              playerName={name}
+              socket={socket}
+              setPlayerList={setPlayerList}
+              setPlayerInfo={setPlayerInfo}
+              setError={setTranslatedError}
+              endpoint={endpoint}
+              setRoomInfo={setRoomInfo}
+            />
+          )}
+          {currentScreen === "gameHost" && (
+            <GameHost roomCode={roomInfo.code} playerList={playerList} />
+          )}
+          {currentScreen === "gamePlayer" && (
+            <GamePlayer
+              roomCode={roomInfo.code}
+              playerName={name}
+              playerRole={playerRole}
+            />
+          )}
+        </div>
       </UserStateContext.Provider>
     </div>
   );

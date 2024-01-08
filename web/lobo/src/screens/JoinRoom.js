@@ -50,23 +50,28 @@ function JoinRoom(props) {
   }
 
   return (
-    <div>
-      <p>
+    <div className="flex flex-col">
+      <div className="mb-4">
         <TextInput
           placeholder="Código da sala"
           value={roomInput}
           onChange={(e) => setRoomInput(e.target.value)}
           disabled={!loggedIn || connected}
+          width="300px"
         />
-      </p>
-      <p>
-        <Button handleClick={backToSelect} disabled={!loggedIn || connected}>
+      </div>
+      <div className="flex justify-evenly">
+        <Button
+          handleClick={backToSelect}
+          disabled={!loggedIn || connected}
+          color="red"
+        >
           Voltar
         </Button>
         <Button handleClick={joinRoom} disabled={!loggedIn || connected}>
           Entrar na sala
         </Button>
-      </p>
+      </div>
     </div>
   );
 }

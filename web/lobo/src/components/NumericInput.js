@@ -2,6 +2,7 @@ function NumericInput(props) {
   return (
     <input
       type="number"
+      className="pl-3 pr-1 rounded-md"
       value={props.value}
       onChange={props.onChange}
       placeholder={props.placeholder}

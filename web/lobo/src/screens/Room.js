@@ -101,29 +101,42 @@ function Room(props) {
   }
 
   return (
-    <div>
-      <h1>
-        Sala {roomInfo.code} ({`${playerList.length}/${roomInfo.capacity}`})
-      </h1>
-      <ul>
+    <div className="w-[300px] flex flex-col">
+      <div className="flex justify-between items-center text-3xl text-white border-b-[1px] pb-2 mb-4">
+        <span>
+          Sala <strong>{roomInfo.code}</strong>
+        </span>
+        <span className="text-xl">
+          ({`${playerList.length}/${roomInfo.capacity}`})
+        </span>
+      </div>
+      <ul className="list-disc list-inside">
         {playerList.map((player, index) => (
           <li
             key={index}
-            style={player.position === "host" ? { color: "red" } : {}}
+            className={
+              player.position === "host" ? "text-yellow mb-4" : "text-white"
+            }
           >
-            {player.name}
+            {player.name} {player.position === "host" ? "(Anfitrião)" : ""}
           </li>
         ))}
       </ul>
-      {connected && <Button handleClick={leaveRoom}>Sair da sala</Button>}
-      {connected && isHost() && (
-        <Button
-          handleClick={startGame}
-          disabled={playerList.length < roomInfo.capacity}
-        >
-          Começar o jogo
-        </Button>
-      )}
+      <div className="flex justify-evenly mt-4">
+        {connected && (
+          <Button handleClick={leaveRoom} color="red">
+            Sair da sala
+          </Button>
+        )}
+        {connected && isHost() && (
+          <Button
+            handleClick={startGame}
+            disabled={playerList.length < roomInfo.capacity}
+          >
+            Começar o jogo
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

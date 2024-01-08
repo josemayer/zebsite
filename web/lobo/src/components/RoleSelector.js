@@ -43,14 +43,17 @@ export default function RoleSelector(props) {
     <div>
       {availableRoles.map((role, index) => {
         return (
-          <div key={index}>
+          <div className="flex items-center py-1" key={index}>
             <input
               type="checkbox"
               onChange={(e) => selectRole(e, role.name)}
               id={role.name}
               value={role.name}
+              className="mr-2"
             />
-            <label htmlFor={role.name}>{role.title}</label>
+            <label className="text-white mr-2" htmlFor={role.name}>
+              {role.title}
+            </label>
 
             {isRoleSelected(role.name) && (
               <NumericInput

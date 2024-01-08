@@ -5,7 +5,7 @@ import { useState, useEffect, useContext } from "react";
 import { UserStateContext } from "../App";
 
 function Room(props) {
-  const { connected, loggedIn, setConnected, setCurrentScreen } =
+  const { connected, loggedIn, setConnected, setLoggedIn, setCurrentScreen } =
     useContext(UserStateContext);
 
   const {
@@ -34,6 +34,12 @@ function Room(props) {
         setAvailableRoles(data.roles);
       });
   }, [endpoint]);
+
+  function backToLogin() {
+    setCurrentScreen("login");
+    setConnected(false);
+    setLoggedIn(false);
+  }
 
   function createRoom() {
     if (socket) {
@@ -69,28 +75,39 @@ function Room(props) {
 
   return (
     <div>
-      <div>
-        <div>
-          <label htmlFor="capacity">Capacidade da sala:</label>
-          <TextInput id="capacity" value={capacity} disabled={true} />
+      <div className="text-white mb-4">
+        <div className="flex items-center mb-2">
+          <label htmlFor="capacity" className="mr-4">
+            Capacidade da sala:
+          </label>
+          <div className="bg-orange rounded-lg px-4 py-2">{capacity}</div>
         </div>
-        <div>
+        <div className="text-xs">
           A capacidade é calculada automaticamente e leva em conta a quantidade
           das funções e o anfitrião.
         </div>
       </div>
-      <p>Selecione as posições desejadas e especifique a quantidade:</p>
+      <div className="py-2 text-white">
+        Selecione as posições desejadas e especifique a quantidade:
+      </div>
       <RoleSelector
         availableRoles={availableRoles}
         roles={roles}
         setRoles={setRoles}
         setCapacity={setCapacity}
       />
-      <p>
+      <div className="mt-2 flex justify-evenly items-center">
+        <Button
+          handleClick={backToLogin}
+          disabled={!loggedIn || connected}
+          color="red"
+        >
+          Voltar
+        </Button>
         <Button handleClick={createRoom} disabled={!loggedIn || connected}>
           Criar sala
         </Button>
-      </p>
+      </div>
     </div>
   );
 }
