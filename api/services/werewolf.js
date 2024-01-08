@@ -52,21 +52,24 @@ function roles() {
       {
         name: "drunk",
         title: "Bêbado",
-        desc: "Você é um bêbado, membro da equipe dos aldeões. Você deve permanecer calado durante todo o jogo, sendo morto caso fale. Você ganha quando todos os times inimigos (lobos, suicidas e piromaníacos) estiverem mortos.",
+        description:
+          "Você é um bêbado, membro da equipe dos aldeões. Você deve permanecer calado durante todo o jogo, sendo morto caso fale. Você ganha quando todos os times inimigos (lobos, suicidas e piromaníacos) estiverem mortos.",
         team: "villager",
         night: false,
       },
       {
         name: "suicidal",
         title: "Suicida",
-        desc: "Você é um suicida, membro da equipe dos suicidas. Você deve se matar por votação da aldeia. Você ganha isoladamente quando todos votarem em você para morrer, caso contrário, se morrer por qualquer outro motivo, você perde.",
+        description:
+          "Você é um suicida, membro da equipe dos suicidas. Você deve se matar por votação da aldeia. Você ganha isoladamente quando todos votarem em você para morrer, caso contrário, se morrer por qualquer outro motivo, você perde.",
         team: "suicidal",
         night: false,
       },
       {
         name: "pyromaniac",
         title: "Piromaníaco",
-        desc: "Você é um piromaníaco, membro da equipe dos piromaníacos. Você deve acordar todas as noites e escolher um jogador para jogar gasolina. Caso todos os jogadores vivos estejam marcados com gasolina, você pode atear fogo. Você ganha isoladamente quando todos os jogadores restantes estiverem marcados.",
+        description:
+          "Você é um piromaníaco, membro da equipe dos piromaníacos. Você deve acordar todas as noites e escolher um jogador para jogar gasolina. Caso todos os jogadores vivos estejam marcados com gasolina, você pode atear fogo. Você ganha isoladamente quando todos os jogadores restantes estiverem marcados.",
         team: "pyromaniac",
         night: false,
       },
