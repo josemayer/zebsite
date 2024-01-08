@@ -40,7 +40,7 @@ function GamePlayer(props) {
       <div className="text-xl text-white text-center font-bold mb-2">
         {roleInfo.title}
       </div>
-      <p className="text-white">{roleInfo.description}</p>
+      <p className="text-white text-justify">{roleInfo.description}</p>
     </div>
   );
 }
