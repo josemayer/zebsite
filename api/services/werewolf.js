@@ -74,6 +74,18 @@ function roles() {
   };
 }
 
+function role(name) {
+  const rolesArr = roles();
+  const role = rolesArr.roles.find((role) => role.name === name);
+
+  if (!role) {
+    throw new Error("Role not found");
+  }
+
+  return role;
+}
+
 module.exports = {
   roles,
+  role,
 };

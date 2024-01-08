@@ -139,13 +139,18 @@ function App() {
             />
           )}
           {currentScreen === "gameHost" && (
-            <GameHost roomCode={roomInfo.code} playerList={playerList} />
+            <GameHost
+              roomCode={roomInfo.code}
+              playerList={playerList}
+              endpoint={endpoint}
+            />
           )}
           {currentScreen === "gamePlayer" && (
             <GamePlayer
               roomCode={roomInfo.code}
               playerName={name}
               playerRole={playerRole}
+              endpoint={endpoint}
             />
           )}
         </div>
