@@ -5,6 +5,7 @@ import RoomConfig from "./screens/RoomConfig";
 import GameHost from "./screens/GameHost";
 import GamePlayer from "./screens/GamePlayer";
 
+import Logo from "./components/Logo";
 import Error from "./components/Error";
 
 import { useState, useEffect, createContext } from "react";
@@ -100,9 +101,7 @@ function App() {
         }}
       >
         <div className="flex flex-col justify-center p-4 w-[250px] sm:w-[300px] md:w-[400px]">
-          <h1 className="text-3xl text-white text-bold font-['Lemon'] pb-4 text-center">
-            Lobo
-          </h1>
+          <Logo />
           <Error error={error} />
 
           {currentScreen === "login" && (
