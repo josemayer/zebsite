@@ -96,15 +96,20 @@ function Room(props) {
         setCapacity={setCapacity}
         imagesEndpoint={`${endpoint}werewolf/`}
       />
-      <div className="mt-4 flex justify-evenly items-center">
+      <div className="mt-4 grid md:grid-cols-2 gap-4">
         <Button
           handleClick={backToLogin}
           disabled={!loggedIn || connected}
           color="red"
+          className="text-white"
         >
           Voltar
         </Button>
-        <Button handleClick={createRoom} disabled={!loggedIn || connected}>
+        <Button
+          handleClick={createRoom}
+          disabled={!loggedIn || connected}
+          className="text-white"
+        >
           Criar sala
         </Button>
       </div>
