@@ -73,6 +73,25 @@ function startGame(roomId) {
   }
 }
 
+function kickPlayer(roomId, playerId, hostId) {
+  if (!isActiveRoom(roomId)) {
+    throw new Error("Room does not exist");
+  }
+
+  const room = activeRooms.find((room) => room.code === roomId);
+
+  if (room.host.id !== hostId) {
+    throw new Error("You are not the host");
+  }
+
+  if (playerId === hostId) {
+    throw new Error("You cannot kick yourself");
+  }
+
+  room.removePlayer(playerId);
+  return room;
+}
+
 function isActiveRoom(roomId) {
   if (activeRooms.find((room) => room.code === roomId) !== undefined) {
     return true;
@@ -103,4 +122,5 @@ module.exports = {
   joinRoom,
   leaveRoom,
   startGame,
+  kickPlayer,
 };

@@ -1,5 +1,8 @@
 import Button from "../components/Button";
-import { useEffect, useContext } from "react";
+import Modal from "../components/Modal";
+import { useEffect, useContext, useState } from "react";
+
+import { IoIosRemoveCircleOutline } from "react-icons/io";
 import { UserStateContext } from "../App";
 
 function Room(props) {
@@ -18,6 +21,8 @@ function Room(props) {
     setRoomInfo,
     isHost,
   } = props;
+
+  const [kickModalOpen, setKickModalOpen] = useState(false);
 
   useEffect(() => {
     playerList.forEach((player) => {
@@ -53,6 +58,10 @@ function Room(props) {
         setLoggedIn(false);
         socket.disconnect();
       });
+
+      socket.on("player_kicked", () => {
+        setKickModalOpen(true);
+      });
     }
   }, [
     socket,
@@ -61,7 +70,18 @@ function Room(props) {
     setCurrentScreen,
     setConnected,
     setLoggedIn,
+    setPlayerInfo,
+    setRoomInfo,
   ]);
+
+  function closeKickModalAndLeaveRoom() {
+    setKickModalOpen(false);
+    setConnected(false);
+    setRoomInfo({});
+    setPlayerList([]);
+    setPlayerInfo({});
+    setCurrentScreen("joinRoom");
+  }
 
   function leaveRoom() {
     if (socket) {
@@ -100,8 +120,17 @@ function Room(props) {
     }
   }
 
+  function kickPlayer(playerId) {
+    if (socket) {
+      socket.emit("kick_player", { roomCode: roomInfo.code, playerId });
+    }
+  }
+
   return (
     <div className="flex flex-col">
+      <Modal opened={kickModalOpen} close={() => closeKickModalAndLeaveRoom()}>
+        Você foi expulso da sala!
+      </Modal>
       <div className="flex justify-between items-center text-3xl text-white border-b-[1px] pb-2 mb-4">
         <span>
           Sala <strong>{roomInfo.code}</strong>
@@ -114,12 +143,20 @@ function Room(props) {
         {playerList.map((player, index) => (
           <li
             key={index}
-            className={
-              player.position === "host" ? "text-yellow mb-4" : "text-white"
-            }
+            className={`
+              ${player.position === "host" ? "text-yellow mb-4" : "text-white"}
+              flex justify-between items-center
+            `}
           >
-            {player.name} {player.position === "host" ? "(Anfitrião)" : ""}{" "}
-            {player.id === playerInfo.id ? "(Você)" : ""}
+            <span>
+              {player.name} {player.position === "host" && "(Anfitrião)"}{" "}
+              {player.id === playerInfo.id && "(Você)"}
+            </span>
+            {connected && isHost() && player.id !== playerInfo.id && (
+              <button onClick={() => kickPlayer(player.id)}>
+                <IoIosRemoveCircleOutline className="text-white text-xl" />
+              </button>
+            )}
           </li>
         ))}
       </ul>

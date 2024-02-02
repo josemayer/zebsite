@@ -16,6 +16,23 @@ const events = (io, socket) => {
     });
   });
 
+  socket.on("kick_player", (data) => {
+    const { roomCode, playerId } = data;
+    const roomCodeNumb = parseInt(roomCode);
+
+    try {
+      const roomObj = game.kickPlayer(roomCodeNumb, playerId, socket.id);
+      const playerSocket = io.sockets.sockets.get(playerId);
+      playerSocket.leave(roomCodeNumb);
+      playerSocket.emit("player_kicked");
+      playerSocket.broadcast
+        .to(roomCodeNumb)
+        .emit("player_left", roomObj.players);
+    } catch (error) {
+      socket.emit("error", error.message);
+    }
+  });
+
   socket.on("create_new_room", (data) => {
     const { roomData, playerData } = data;
     const { name, position } = playerData;

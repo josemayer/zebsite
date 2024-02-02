@@ -41,6 +41,10 @@ class Room {
     }
   }
 
+  get host() {
+    return this.#players.find((p) => p.isHost());
+  }
+
   get players() {
     return this.#players.map((p) => p.toObject());
   }
@@ -52,7 +56,7 @@ class Room {
   get code() {
     return this.#code;
   }
-  
+
   get capacity() {
     return this.#capacity;
   }
