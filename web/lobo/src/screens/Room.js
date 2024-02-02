@@ -125,13 +125,17 @@ function Room(props) {
       </ul>
       <div className="flex flex-col sm:flex-row justify-evenly mt-4">
         {connected && (
-          <Button className="mb-2 sm:mb-0" handleClick={leaveRoom} color="red">
+          <Button
+            className="mb-2 sm:mb-0 flex-grow text-white"
+            handleClick={leaveRoom}
+            color="red"
+          >
             Sair da sala
           </Button>
         )}
         {connected && isHost() && (
           <Button
-            className="mb-2 sm:mb-0 ml-0 sm:ml-2"
+            className="mb-2 sm:mb-0 ml-0 sm:ml-4 flex-grow"
             handleClick={startGame}
             disabled={playerList.length < roomInfo.capacity}
           >

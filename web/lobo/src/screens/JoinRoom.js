@@ -69,20 +69,16 @@ function JoinRoom(props) {
           disabled={!loggedIn || connected}
         />
       </div>
-      <div className="flex flex-col-reverse sm:flex-row justify-evenly">
+      <div className="grid grid-cols-2 gap-4">
         <Button
-          className="mb-2 sm:mb-0 sm:mr-2"
           handleClick={backToSelect}
           disabled={!loggedIn || connected}
           color="red"
+          className="text-white"
         >
           Voltar
         </Button>
-        <Button
-          className="mb-2 sm:mb-0"
-          handleClick={joinRoom}
-          disabled={!loggedIn || connected}
-        >
+        <Button handleClick={joinRoom} disabled={!loggedIn || connected}>
           Entrar na sala
         </Button>
       </div>

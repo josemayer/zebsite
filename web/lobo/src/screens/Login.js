@@ -50,7 +50,7 @@ function Login(props) {
         />
       </div>
       <div className="text-white text-center py-2">Entrar como...</div>
-      <div className="flex justify-evenly">
+      <div className="grid grid-cols-2 gap-4">
         <Button handleClick={handleHost} disabled={loggedIn} color="orange">
           Anfitrião
         </Button>
