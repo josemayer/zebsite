@@ -79,10 +79,17 @@ export default function RoleSelector(props) {
           <p className="text-justify">{modalInfo.description}</p>
         </div>
       </Modal>
-      <div class="grid grid-cols-2 auto-rows-max gap-4">
+      <div className="grid grid-cols-2 auto-rows-max gap-4">
         {availableRoles.map((role, index) => {
           return (
-            <label htmlFor={role.name}>
+            <label
+              htmlFor={role.name}
+              className={
+                index === availableRoles.length - 1 &&
+                availableRoles.length % 2 === 1 &&
+                "col-span-2"
+              }
+            >
               <Card
                 key={index}
                 hFull
