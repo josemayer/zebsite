@@ -96,7 +96,7 @@ function Room(props) {
         setCapacity={setCapacity}
         imagesEndpoint={`${endpoint}werewolf/`}
       />
-      <div className="mt-2 flex justify-evenly items-center">
+      <div className="mt-4 flex justify-evenly items-center">
         <Button
           handleClick={backToLogin}
           disabled={!loggedIn || connected}
