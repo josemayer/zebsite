@@ -1,6 +1,9 @@
 import { IoMdInformationCircle } from "react-icons/io";
 import { GiDeathSkull } from "react-icons/gi";
 import { FaUndo } from "react-icons/fa";
+import { TbShieldHeart } from "react-icons/tb";
+import { TbShieldOff } from "react-icons/tb";
+
 import { useState, useEffect } from "react";
 import Modal from "../components/Modal";
 
@@ -10,6 +13,7 @@ function GameHost(props) {
   const [roles, setRoles] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [isAlive, setIsAlive] = useState({});
+  const [saved, setSaved] = useState("");
   const [modalInfo, setModalInfo] = useState({});
 
   useEffect(() => {
@@ -82,24 +86,54 @@ function GameHost(props) {
         {props.playerList.map(
           (player, index) =>
             player.position !== "host" && (
-              <li key={index}>
+              <li
+                key={index}
+                className={saved === player.id && "text-lightGreen"}
+              >
                 <div class="flex justify-between items-center">
-                  <span className={!isAlive[player.id] ? "opacity-50" : ""}>
+                  <span className={!isAlive[player.id] && "opacity-50"}>
                     {player.name} - {roles[player.role]?.title}
                     <IoMdInformationCircle
-                      className="ml-2 mb-1 inline-block text-base text-white cursor-pointer"
+                      className="ml-2 mb-1 inline-block text-base cursor-pointer"
                       onClick={() => setModalInfo(roles[player.role])}
                     />
                   </span>
                   <span>
+                    <span class="mr-2">
+                      {saved === "" ? (
+                        <button
+                          className="text-white text-xl"
+                          onClick={() => {
+                            setSaved(player.id);
+                          }}
+                        >
+                          <TbShieldHeart />
+                        </button>
+                      ) : (
+                        saved === player.id && (
+                          <button
+                            className="text-white text-xl"
+                            onClick={() => {
+                              setSaved("");
+                            }}
+                          >
+                            <TbShieldOff />
+                          </button>
+                        )
+                      )}
+                    </span>
+
                     {isAlive[player.id] ? (
                       <button
                         className="text-white text-xl"
                         onClick={() => {
                           setIsAlive({ ...isAlive, [player.id]: false });
                         }}
+                        disabled={saved === player.id}
                       >
-                        <GiDeathSkull />
+                        <GiDeathSkull
+                          className={saved === player.id ? "opacity-50" : ""}
+                        />
                       </button>
                     ) : (
                       <button
