@@ -100,7 +100,7 @@ function App() {
           setCurrentScreen,
         }}
       >
-        <div className="flex flex-col justify-start p-4 w-[250px] sm:w-[300px] md:w-[400px] max-h-screen">
+        <div className="flex flex-col justify-start p-4 w-[375px] sm:w-[450px] md:w-[500px] max-h-screen">
           <Logo />
           <Error error={error} />
 
