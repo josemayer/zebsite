@@ -89,7 +89,7 @@ function App() {
   }
 
   return (
-    <div className="flex justify-center items-center h-screen font-['Salsa'] bg-purple overflow-y-auto overflow-w-hidden">
+    <div className="flex justify-center items-center min-h-screen font-['Salsa']">
       <UserStateContext.Provider
         value={{
           loggedIn,
@@ -100,7 +100,7 @@ function App() {
           setCurrentScreen,
         }}
       >
-        <div className="flex flex-col justify-start p-4 w-[320px] sm:w-[450px] md:w-[550px] max-h-screen">
+        <div className="flex flex-col justify-start p-4 w-[320px] sm:w-[450px] md:w-[550px]">
           <Logo />
           <Error error={error} />
 

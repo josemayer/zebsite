@@ -1,7 +1,6 @@
-import ReactDOM from 'react-dom/client';
-import App from './App';
+import ReactDOM from "react-dom/client";
+import App from "./App";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <App />
-);
+document.body.classList.add("bg-purple");
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
