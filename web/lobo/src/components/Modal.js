@@ -21,7 +21,7 @@ function Modal(props) {
       onClick={props.close}
     >
       <div
-        className="bg-white px-12 py-8 max-w-[300px] rounded relative"
+        className="bg-white px-12 py-8 max-w-[300px] sm:max-w-[400px] md:max-w-[450px] rounded relative"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="absolute top-1 right-1">
