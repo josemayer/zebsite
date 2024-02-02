@@ -17,7 +17,7 @@ function Modal(props) {
 
   return props.opened ? (
     <div
-      className="w-screen h-screen bg-black bg-opacity-50 absolute top-0 left-0 flex items-center justify-center z-10"
+      className="w-screen h-screen fixed bg-black bg-opacity-50 top-0 left-0 flex items-center justify-center z-10"
       onClick={props.close}
     >
       <div
