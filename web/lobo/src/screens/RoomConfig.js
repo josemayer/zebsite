@@ -94,6 +94,7 @@ function Room(props) {
         roles={roles}
         setRoles={setRoles}
         setCapacity={setCapacity}
+        imagesEndpoint={`${endpoint}werewolf/`}
       />
       <div className="mt-2 flex justify-evenly items-center">
         <Button
