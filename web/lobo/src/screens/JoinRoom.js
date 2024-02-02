@@ -69,12 +69,12 @@ function JoinRoom(props) {
           disabled={!loggedIn || connected}
         />
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid sm:grid-cols-2 sm:gap-4 gap-2">
         <Button
           handleClick={backToSelect}
           disabled={!loggedIn || connected}
           color="red"
-          className="text-white"
+          className="text-white order-last sm:order-first"
         >
           Voltar
         </Button>
