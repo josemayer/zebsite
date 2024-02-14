@@ -45,6 +45,20 @@ services:
     profiles:
       - prod
 
+  www:
+    build:
+      context: .
+      dockerfile: ./web/www/Dockerfile
+      target: production
+    volumes:
+      - ./httpd/htdocs/www:/app/build
+    networks:
+      - frontend
+    depends_on:
+      - apache
+    profiles:
+      - prod
+
   apache-dev:
     build:
       context: .
@@ -85,6 +99,20 @@ services:
       - ./web/lobo/src:/app/src
     ports:
       - 3001:3000
+    networks:
+      - frontend
+    profiles:
+      - dev
+
+  www-dev:
+    build:
+      context: .
+      dockerfile: ./web/www/Dockerfile
+      target: development
+    volumes:
+      - ./web/www/src:/app/src
+    ports:
+      - 3002:3000
     networks:
       - frontend
     profiles:
@@ -131,7 +159,7 @@ services:
   postgres:
     image: postgres:14.1-alpine
     env_file:
-       - ./db/.env
+      - ./db/.env
     volumes:
       - ./db/sql:/docker-entrypoint-initdb.d/
     networks:
