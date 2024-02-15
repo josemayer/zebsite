@@ -18,7 +18,7 @@ function App() {
       <div
         className={`flex flex-col ${
           darkMode ? "bg-white" : "bg-darkPurple"
-        } items-center duration-150 ease-in-out relative`}
+        } items-center duration-75 ease-out relative`}
       >
         <div
           className={`flex flex-col items-center ${
