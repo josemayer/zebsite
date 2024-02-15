@@ -8,3 +8,6 @@ ssl/*
 
 httpd/htdocs/lobo/
 !httpd/htdocs/lobo/.keep
+
+httpd/htdocs/www
+!httpd/htdocs/www/.keep
