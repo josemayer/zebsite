@@ -59,6 +59,20 @@ services:
     profiles:
       - prod
 
+  mc:
+    build:
+      context: .
+      dockerfile: ./web/mc/Dockerfile
+      target: production
+    volumes:
+      - ./httpd/htdocs/mc:/app/build
+    networks:
+      - frontend
+    depends_on:
+      - apache
+    profiles:
+      - prod
+
   apache-dev:
     build:
       context: .
@@ -113,6 +127,20 @@ services:
       - ./web/www/src:/app/src
     ports:
       - 3002:3000
+    networks:
+      - frontend
+    profiles:
+      - dev
+
+  mc-dev:
+    build:
+      context: .
+      dockerfile: ./web/mc/Dockerfile
+      target: development
+    volumes:
+      - ./web/mc/src:/app/src
+    ports:
+      - 3003:3000
     networks:
       - frontend
     profiles:
