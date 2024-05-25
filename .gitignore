@@ -11,3 +11,6 @@ httpd/htdocs/lobo/
 
 httpd/htdocs/www
 !httpd/htdocs/www/.keep
+
+httpd/htdocs/mc
+!httpd/htdocs/mc/.keep
