@@ -4,5 +4,5 @@ CREATE TABLE posts (
   content TEXT NOT NULL,
   author_id INT NOT NULL,
 
-  FOREIGN KEY (authorId) REFERENCES users(id)
+  FOREIGN KEY (author_id) REFERENCES users(id)
 );
