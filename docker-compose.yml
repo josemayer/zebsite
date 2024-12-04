@@ -184,6 +184,8 @@ services:
 
   postgres:
     image: postgres:14.1-alpine
+    ports:
+      - 5432:5432
     env_file:
       - ./db/.env
     volumes:
