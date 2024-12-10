@@ -1,14 +1,18 @@
 const request = require("supertest");
 const app = require("../app");
-const { resetDatabase } = require("./config/testDatabase");
+const { resetUsers } = require("./config/testDatabase");
 
 const db = require("../services/db");
 
-beforeEach(async () => {
-  await resetDatabase();
-});
+describe("Register E2E Tests", () => {
+  afterAll(async () => {
+    await db.close();
+  });
 
-describe("E2E Tests", () => {
+  beforeEach(async () => {
+    await resetUsers();
+  });
+
   test("POST /api/users should create a new user", async () => {
     const response = await request(app)
       .post("/register")

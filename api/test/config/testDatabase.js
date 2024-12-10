@@ -6,4 +6,12 @@ async function resetDatabase() {
   );
 }
 
-module.exports = { resetDatabase };
+async function resetUsers() {
+  await db.query("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+}
+
+async function resetPosts() {
+  await db.query("TRUNCATE TABLE posts RESTART IDENTITY CASCADE");
+}
+
+module.exports = { resetDatabase, resetUsers, resetPosts };

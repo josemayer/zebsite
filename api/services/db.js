@@ -20,7 +20,6 @@ async function query(query, params) {
  */
 async function close() {
   await pool.end();
-  console.log("PostgreSQL pool has ended");
 }
 
 module.exports = {
