@@ -1,0 +1,6 @@
+CREATE TABLE categories (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description VARCHAR(255) NOT NULL,
+  active BOOLEAN DEFAULT true NOT NULL
+);
