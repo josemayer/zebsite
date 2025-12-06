@@ -163,6 +163,7 @@ services:
       - postgres
     profiles:
       - dev
+      - api
 
   api:
     build:
@@ -195,6 +196,7 @@ services:
     profiles:
       - prod
       - dev
+      - api
 
 networks:
   frontend:
