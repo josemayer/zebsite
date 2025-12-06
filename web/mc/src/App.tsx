@@ -12,6 +12,8 @@ import Register from "./components/Register";
 import Loading from "./components/Loading";
 import "./App.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_ENDPOINT || "https://api.josemayer.dev";
+
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -28,7 +30,7 @@ const App: React.FC = () => {
   const verifyLogin = async (token: string) => {
     try {
       const response = await axios.get(
-        "https://api.josemayer.dev/verifyLogin",
+        API_BASE_URL + "/verifyLogin",
         {
           headers: { Authorization: `Bearer ${token}` },
         }

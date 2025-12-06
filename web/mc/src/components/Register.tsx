@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE_URL = process.env.REACT_APP_API_ENDPOINT || "https://api.josemayer.dev";
+
 const Register: React.FC = () => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -10,7 +12,7 @@ const Register: React.FC = () => {
   const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const response = await axios.post("https://api.josemayer.dev/register", {
+      const response = await axios.post(API_BASE_URL + "/register", {
         username,
         password,
       });

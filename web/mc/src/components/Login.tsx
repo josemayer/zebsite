@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE_URL = process.env.REACT_APP_API_ENDPOINT || "https://api.josemayer.dev";
+
 interface LoginProps {
   setIsAuthenticated: (isAuthenticated: boolean) => void;
 }
@@ -14,7 +16,7 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const response = await axios.post("https://api.josemayer.dev/login", {
+      const response = await axios.post(API_BASE_URL + "/login", {
         username,
         password,
       });
