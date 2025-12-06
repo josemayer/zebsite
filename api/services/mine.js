@@ -1,61 +1,30 @@
-const { exec } = require("child_process");
-const path = require("path");
+const Redis = require("ioredis");
 
-const SCRIPT_PATH = path.resolve(__dirname, "../../../mine-server/manage-mc.py");
+const redis = new Redis({
+  host: process.env.REDIS_HOST || "redis",
+  port: process.env.REDIS_PORT || 6379,
+});
 
-/**
- * Execute the Python manage-mc.py script with a given command
- * @param {string} command - "up", "down", or "restart"
- */
-function runCommand(command) {
-  return new Promise((resolve, reject) => {
-    let pyCommand;
-
-    switch (command) {
-      case "on":
-        pyCommand = "up";
-        break;
-      case "off":
-        pyCommand = "down";
-        break;
-      case "restart":
-        pyCommand = "restart";
-        break;
-      default:
-        return reject({ statusCode: 400, message: "Invalid state" });
-    }
-
-    exec(`python3 ${SCRIPT_PATH} ${pyCommand}`, (err, stdout, stderr) => {
-      if (err) {
-        console.error(`Error executing Python script:`, stderr || err.message);
-        return reject({
-          statusCode: 500,
-          message: stderr || err.message || "Python script failed",
-        });
-      }
-
-      resolve({
-        state: command,
-        details: stdout.trim() || "Command executed successfully",
-      });
-    });
-  });
-}
+const VALID_COMMANDS = ["on", "off", "restart"];
 
 /**
- * Set the Minecraft server state: "on", "off", "restart"
- * @param {string} state
+ * Send a Minecraft server command to Redis queue
+ * @param {string} command - "on", "off", "restart"
  */
-async function setState(state) {
-  try {
-    const result = await runCommand(state);
-    return result;
-  } catch (err) {
-    throw err;
+async function setState(command) {
+  if (!VALID_COMMANDS.includes(command)) {
+    throw { statusCode: 400, message: "Invalid state" };
   }
+
+  // Push command to Redis list
+  await redis.rpush("mc_commands_queue", command);
+
+  return {
+    state: command,
+    details: "Command queued successfully",
+  };
 }
 
 module.exports = {
   setState,
 };
-

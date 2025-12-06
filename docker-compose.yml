@@ -198,6 +198,17 @@ services:
       - dev
       - api
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+    networks:
+      - backend
+    profiles:
+      - prod
+      - dev
+      - api
+
 networks:
   frontend:
     driver: bridge
