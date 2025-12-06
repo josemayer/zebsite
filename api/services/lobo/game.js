@@ -102,7 +102,7 @@ function isActiveRoom(roomId) {
 function generateRoomId() {
   let roomId = Math.floor(Math.random() * 10000);
 
-  const tries = 10000;
+  let tries = 10000;
 
   while (isActiveRoom(roomId) && tries > 0) {
     tries--;
