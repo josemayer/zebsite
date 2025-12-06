@@ -10,6 +10,7 @@ var registerRouter = require("./routes/register");
 var verifyLoginRouter = require("./routes/verifyLogin");
 var werewolfRouter = require("./routes/werewolf");
 var blogRouter = require("./routes/blog");
+var mineRouter = require("./routes/mine");
 
 var app = express();
 
@@ -35,5 +36,6 @@ app.use("/register", registerRouter);
 app.use("/verifyLogin", verifyLoginRouter);
 app.use("/werewolf", werewolfRouter);
 app.use("/blog", blogRouter);
+app.use("/mine", mineRouter);
 
 module.exports = app;
