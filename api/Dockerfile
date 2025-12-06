@@ -1,20 +1,25 @@
-FROM node:18 as base
+FROM oven/bun:1 AS base
 WORKDIR /src
-COPY ./api/package*.json ./
+
+# Copy package files and Bun lockfile
+COPY ./api/package.json ./api/bun.lockb ./
 EXPOSE ${PORT}
 
 # SSL files
 COPY ./ssl/private.key /etc/ssl/private.key
 COPY ./ssl/certificate.crt /etc/ssl/certificate.crt
 
-FROM base as production
+# Production stage
+FROM base AS production
 ENV NODE_ENV=production
-RUN npm ci --omit=dev
+# Install only production dependencies
+RUN bun install --production
 COPY ./api ./
-CMD ["npm", "start"]
+CMD ["bun", "run", "start"]
 
-FROM base as development
+# Development stage
+FROM base AS development
 ENV NODE_ENV=development
-RUN npm install
+RUN bun install
 COPY ./api ./
-CMD ["npm", "run", "dev"]
+CMD ["bun", "run", "dev"]
