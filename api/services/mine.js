@@ -61,8 +61,7 @@ async function setProperties(properties) {
           status: "success",
           details: "Property will be applied",
         });
-        value.replace(/ /g, '\\ ');
-        acc.validProps.push(`${property}=${value}`);
+        acc.validProps.push(`${property}=${value.replace(/ /g, '\\ ')}`);
       }
       return acc;
     },
