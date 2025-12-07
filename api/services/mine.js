@@ -61,7 +61,7 @@ async function setProperties(properties) {
           status: "success",
           details: "Property will be applied",
         });
-        if (value.contains(" ")) {
+        if (value.includes(" ")) {
           value = `"${value}"`;
         }
         acc.validProps.push(`${property}=${value}`);
