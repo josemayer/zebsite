@@ -41,4 +41,32 @@ router.put(
   }
 );
 
+// POST /mine/properties
+router.put(
+  "/properties",
+  [authenticateToken, verifyAdminRole],
+  async function (req, res) {
+    try {
+      const { properties } = req.body;
+
+      if (!properties) {
+        return res.status(400).json({ message: "Missing 'properties' in body" });
+      }
+
+      const result = await mineService.setProperties(properties);
+
+      return res.status(200).json({
+        message: `Server properties change initiated`,
+        state: result.state,
+        details: result,
+      });
+    } catch (err) {
+      console.error(`Error during minecraft server properties change:`, err.message);
+      return res
+        .status(err.statusCode || 500)
+        .json({ message: err.message || "Internal server error" });
+    }
+  }
+);
+
 module.exports = router;
