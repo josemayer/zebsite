@@ -57,7 +57,6 @@ router.put(
 
       return res.status(200).json({
         message: `Server properties change initiated`,
-        state: result.state,
         details: result,
       });
     } catch (err) {
