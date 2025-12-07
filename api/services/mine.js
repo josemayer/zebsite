@@ -62,7 +62,7 @@ async function setProperties(properties) {
           details: "Property will be applied",
         });
         if (value.includes(" ")) {
-          value = `"${value}"`;
+          value = value.replace(/ /g, "__SPACE__");
         }
         acc.validProps.push(`${property}=${value}`);
       }
