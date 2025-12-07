@@ -32,25 +32,48 @@ async function setState(command) {
     *
   */
 async function setProperties(properties) {
-  const validProperties = ["max-players", "motd", "difficulty", "gamemode", "whitelist", "online-mode", "allow-flight", "view-distance"];
-  const results = [];
-  let has_error = false;
-  for (const [property, value] of Object.entries(properties)) {
-    if (!validProperties.includes(property)) {
-      results.push({ property: property, status: "failed", message: "Invalid property" });
-      has_error = true;
-      continue;
-    }
+  const validProperties = [
+    "max-players",
+    "motd",
+    "difficulty",
+    "gamemode",
+    "whitelist",
+    "online-mode",
+    "allow-flight",
+    "view-distance",
+  ];
 
-    const command = `setprop ${property} ${value}`;
+  const entries = Object.entries(properties);
 
-    // Push command to Redis list
+  const { results, validProps, hasError } = entries.reduce(
+    (acc, [property, value]) => {
+      if (!validProperties.includes(property)) {
+        acc.results.push({
+          property,
+          status: "failed",
+          message: "Invalid property",
+        });
+        acc.hasError = true;
+      } else {
+        acc.results.push({
+          property,
+          value,
+          status: "success",
+          details: "Property will be applied",
+        });
+        acc.validProps.push(`${property}=${value}`);
+      }
+      return acc;
+    },
+    { results: [], validProps: [], hasError: false }
+  );
+
+  if (validProps.length > 0) {
+    const command = `setprop ${validProps.join(" ")}`;
     await redis.rpush("mc_commands_queue", command);
-
-    results.push({ property: property, value: value, status: "success", details: "Property change command queued successfully" });
   }
 
-  if (has_error) {
+  if (hasError) {
     return { results, allowedProperties: validProperties };
   }
   return { results };
