@@ -6,5 +6,6 @@ RUN bun install --frozen-lockfile
 FROM oven/bun AS production
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY web/mc/package.json ./
 COPY web/mc .
-RUN bun run build
+CMD ["bun", "run", "build"]
