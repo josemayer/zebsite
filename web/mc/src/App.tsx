@@ -12,11 +12,15 @@ import Register from "./components/Register";
 import Loading from "./components/Loading";
 import "./App.css";
 
-const API_BASE_URL = process.env.REACT_APP_API_ENDPOINT || "https://api.josemayer.dev";
+const API_BASE_URL =
+  process.env.REACT_APP_API_ENDPOINT || "https://api.josemayer.dev";
+
+type UserRole = "user" | "admin" | null;
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [userRole, setUserRole] = useState<UserRole>(null);
 
   useEffect(() => {
     const token = getAuthTokenFromCookie();
@@ -29,17 +33,21 @@ const App: React.FC = () => {
 
   const verifyLogin = async (token: string) => {
     try {
-      const response = await axios.get(
-        API_BASE_URL + "/verifyLogin",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (response.status === 200) {
+      const response = await axios.get(API_BASE_URL + "/verifyLogin", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.status === 200 && response.data.service === "mine") {
         setIsAuthenticated(true);
+        setUserRole(response.data.role);
+      } else {
+        console.error("User service is not authorized.");
+        document.cookie =
+          "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       }
     } catch (error) {
-      console.error("User is not authenticated", error);
+      console.error("User is not authenticated or verification failed", error);
+      setUserRole(null);
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +78,10 @@ const App: React.FC = () => {
             isAuthenticated ? (
               <Navigate to="/" />
             ) : (
-              <Login setIsAuthenticated={setIsAuthenticated} />
+              <Login
+                setIsAuthenticated={setIsAuthenticated}
+                setUserRole={setUserRole}
+              />
             )
           }
         />
@@ -79,7 +90,10 @@ const App: React.FC = () => {
           path="/"
           element={
             isAuthenticated ? (
-              <Home setIsAuthenticated={setIsAuthenticated} />
+              <Home
+                setIsAuthenticated={setIsAuthenticated}
+                userRole={userRole}
+              />
             ) : (
               <Navigate to="/login" />
             )
