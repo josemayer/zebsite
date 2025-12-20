@@ -52,7 +52,7 @@ async function getProperties() {
     }
   });
 
-  return filtered;
+  return { properties: filtered };
 }
 
 /**
