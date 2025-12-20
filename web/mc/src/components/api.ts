@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_ENDPOINT,
+  baseURL: process.env.REACT_APP_API_ENDPOINT || "https://api.josemayer.dev"
 });
 
 // Interceptor to automatically add the Auth Token from cookies to every request
