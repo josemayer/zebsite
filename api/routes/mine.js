@@ -6,6 +6,40 @@ const {
 } = require("../middlewares/authenticateToken");
 const mineService = require("../services/mine");
 
+// GET /mine/status
+router.get(
+  "/status",
+  [authenticateToken, verifyAdminRole],
+  async function (req, res) {
+    try {
+      const result = await mineService.getStatus();
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(`Error fetching minecraft status:`, err.message);
+      return res
+        .status(err.statusCode || 500)
+        .json({ message: err.message || "Internal server error" });
+    }
+  }
+);
+
+// GET /mine/properties
+router.get(
+  "/properties",
+  [authenticateToken, verifyAdminRole],
+  async function (req, res) {
+    try {
+      const result = await mineService.getProperties();
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(`Error fetching minecraft properties:`, err.message);
+      return res
+        .status(err.statusCode || 500)
+        .json({ message: err.message || "Internal server error" });
+    }
+  }
+);
+
 // PUT /mine/state
 router.put(
   "/state",
@@ -41,7 +75,7 @@ router.put(
   }
 );
 
-// POST /mine/properties
+// PUT /mine/properties
 router.put(
   "/properties",
   [authenticateToken, verifyAdminRole],
@@ -50,7 +84,9 @@ router.put(
       const { properties } = req.body;
 
       if (!properties) {
-        return res.status(400).json({ message: "Missing 'properties' in body" });
+        return res
+          .status(400)
+          .json({ message: "Missing 'properties' in body" });
       }
 
       const result = await mineService.setProperties(properties);
@@ -60,7 +96,10 @@ router.put(
         details: result,
       });
     } catch (err) {
-      console.error(`Error during minecraft server properties change:`, err.message);
+      console.error(
+        `Error during minecraft server properties change:`,
+        err.message
+      );
       return res
         .status(err.statusCode || 500)
         .json({ message: err.message || "Internal server error" });

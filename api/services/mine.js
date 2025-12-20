@@ -1,10 +1,59 @@
 const Redis = require("ioredis");
+const { v4: uuidv4 } = require("uuid");
 
 const redis = new Redis({
   host: process.env.REDIS_HOST || "redis",
   port: process.env.REDIS_PORT || 6379,
 });
 
+const VALID_PROPERTIES = [
+  "max-players",
+  "motd",
+  "difficulty",
+  "gamemode",
+  "whitelist",
+  "online-mode",
+  "allow-flight",
+  "view-distance",
+];
+
+/**
+ * Internal helper to send request and wait for response
+ */
+async function requestWorker(command) {
+  const requestId = uuidv4();
+  const replyTo = `mc_response:${requestId}`;
+
+  const payload = JSON.stringify({ command, reply_to: replyTo });
+  await redis.rpush("mc_commands_queue", payload);
+
+  // Wait 10 seconds for the worker to respond
+  const result = await redis.blpop(replyTo, 10);
+
+  if (!result) {
+    throw new Error("Worker timeout");
+  }
+
+  return JSON.parse(result[1]);
+}
+
+async function getStatus() {
+  return await requestWorker("getstatus");
+}
+
+async function getProperties() {
+  const fullProps = await requestWorker("getprops");
+
+  // Filter only allowed properties
+  const filtered = {};
+  VALID_PROPERTIES.forEach((prop) => {
+    if (fullProps[prop] !== undefined) {
+      filtered[prop] = fullProps[prop];
+    }
+  });
+
+  return filtered;
+}
 
 /**
  * Send a Minecraft server command to Redis queue
@@ -26,28 +75,17 @@ async function setState(command) {
 }
 
 /**
-  * Change Minecraft server properties sending command to Redis queue
-  * @param {object} properties - Object with properties to change
-    * Example: { "max-players": 20, "motd": "Welcome to my server!" }
-    *
-  */
+ * Change Minecraft server properties sending command to Redis queue
+ * @param {object} properties - Object with properties to change
+ * Example: { "max-players": 20, "motd": "Welcome to my server!" }
+ *
+ */
 async function setProperties(properties) {
-  const validProperties = [
-    "max-players",
-    "motd",
-    "difficulty",
-    "gamemode",
-    "whitelist",
-    "online-mode",
-    "allow-flight",
-    "view-distance",
-  ];
-
   const entries = Object.entries(properties);
 
   const { results, validProps, hasError } = entries.reduce(
     (acc, [property, value]) => {
-      if (!validProperties.includes(property)) {
+      if (!VALID_PROPERTIES.includes(property)) {
         acc.results.push({
           property,
           status: "failed",
@@ -61,7 +99,7 @@ async function setProperties(properties) {
           status: "success",
           details: "Property will be applied",
         });
-        if (value.includes(" ")) {
+        if (typeof value === "string" && value.includes(" ")) {
           value = value.replace(/ /g, "__SPACE__");
         }
         acc.validProps.push(`${property}=${value}`);
@@ -77,7 +115,7 @@ async function setProperties(properties) {
   }
 
   if (hasError) {
-    return { results, allowedProperties: validProperties };
+    return { results, allowedProperties: VALID_PROPERTIES };
   }
   return { results };
 }
@@ -85,4 +123,6 @@ async function setProperties(properties) {
 module.exports = {
   setState,
   setProperties,
+  getStatus,
+  getProperties,
 };
