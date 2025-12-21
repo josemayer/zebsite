@@ -109,26 +109,40 @@ const BackupController: React.FC<BackupControllerProps> = ({
 
   const handleRestore = async (filename: string) => {
     setIsProcessing(true);
-    onStatusChange("loading");
+    onStatusChange("loading"); // Force loading state immediately
     setConfirmRestore(null);
 
     try {
       await api.post("/mine/backups/restore", { filename });
 
-      // Post-Restore Polling: 30s loop until "on"
+      // Polling Logic: Hold 'loading' state until server is actually 'on'
       const startTime = Date.now();
       const pollInterval = setInterval(async () => {
-        await syncStatus();
-        const elapsed = Date.now() - startTime;
-        // Logic inside syncStatus updates the global state.
-        // We stop polling after 30s or if status becomes 'on' elsewhere.
-        if (elapsed > 30000) clearInterval(pollInterval);
+        try {
+          const res = await api.get("/mine/status");
+          const actualStatus = res.data.status;
+
+          if (actualStatus === "on") {
+            onStatusChange("on");
+            clearInterval(pollInterval);
+          }
+          // If status is 'off', we do nothing and let the UI stay 'loading'
+        } catch (err) {
+          console.error("Polling status failed", err);
+        }
+
+        // Safety timeout (45s) to prevent infinite loading if boot fails
+        if (Date.now() - startTime > 45000) {
+          clearInterval(pollInterval);
+          syncStatus(); // Final sync to show real state (likely 'off')
+        }
       }, 3000);
     } catch (err) {
-      onStatusChange("off");
+      alert("Restore request failed");
+      syncStatus(); // Revert to real status on API error
     } finally {
       setIsProcessing(false);
-      fetchData(); // Refresh list to see the new auto-backup
+      fetchData(); // Refresh backup list to show the auto-safety-backup
     }
   };
 
