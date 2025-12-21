@@ -1,0 +1,40 @@
+.active-tab-curve::before,
+.active-tab-curve::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  z-index: 20;
+  transition: all 200ms ease-in-out;
+  opacity: 1;
+}
+
+.active-tab-curve::before {
+  left: -10px;
+  bottom: -1px;
+  background: radial-gradient(
+    circle at 0% 0%,
+    transparent 70%,
+    #e5e7eb 80%,
+    #ffffff 90%
+  );
+}
+
+.active-tab-curve::after {
+  right: -10px;
+  bottom: -1px;
+  background: radial-gradient(
+    circle at 100% 0%,
+    transparent 70%,
+    #e5e7eb 80%,
+    #ffffff 90%
+  );
+}
+
+button:not(.active-tab-curve)::before,
+button:not(.active-tab-curve)::after {
+  opacity: 0;
+  bottom: -10px;
+}
