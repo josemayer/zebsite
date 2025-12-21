@@ -37,6 +37,26 @@ async function requestWorker(command) {
   return JSON.parse(result[1]);
 }
 
+/**
+ * Generic helper for commands with arguments
+ */
+async function requestWorkerWithArgs(command, args = []) {
+  const requestId = uuidv4();
+  const replyTo = `mc_response:${requestId}`;
+
+  const payload = JSON.stringify({
+    command,
+    args,
+    reply_to: replyTo,
+  });
+
+  await redis.rpush("mc_commands_queue", payload);
+  const result = await redis.blpop(replyTo, 15); // Slightly longer timeout for disk-heavy tasks
+
+  if (!result) throw new Error("Worker timeout");
+  return JSON.parse(result[1]);
+}
+
 async function getStatus() {
   return await requestWorker("getstatus");
 }
@@ -65,8 +85,9 @@ async function setState(command) {
     throw { statusCode: 400, message: "Invalid state" };
   }
 
-  // Push command to Redis list
-  await redis.rpush("mc_commands_queue", command);
+  // Use the new JSON format so the worker stays happy
+  const payload = JSON.stringify({ command: command });
+  await redis.rpush("mc_commands_queue", payload);
 
   return {
     state: command,
@@ -99,10 +120,13 @@ async function setProperties(properties) {
           status: "success",
           details: "Property will be applied",
         });
-        if (typeof value === "string" && value.includes(" ")) {
-          value = value.replace(/ /g, "__SPACE__");
+
+        let formattedValue = String(value);
+        if (formattedValue.includes(" ")) {
+          formattedValue = formattedValue.replace(/ /g, "__SPACE__");
         }
-        acc.validProps.push(`${property}=${value}`);
+
+        acc.validProps.push(`${property}=${formattedValue}`);
       }
       return acc;
     },
@@ -110,14 +134,55 @@ async function setProperties(properties) {
   );
 
   if (validProps.length > 0) {
-    const command = `setprop ${validProps.join(" ")}`;
-    await redis.rpush("mc_commands_queue", command);
+    const payload = JSON.stringify({
+      command: "setprop",
+      args: validProps,
+    });
+    await redis.rpush("mc_commands_queue", payload);
   }
 
-  if (hasError) {
-    return { results, allowedProperties: VALID_PROPERTIES };
-  }
-  return { results };
+  return hasError
+    ? { results, allowedProperties: VALID_PROPERTIES }
+    : { results };
+}
+
+// --- Backup Services ---
+async function listBackups() {
+  return await requestWorker("listbackups");
+}
+
+async function createBackup() {
+  return await requestWorker("backup");
+}
+
+async function deleteBackup(filename) {
+  return await requestWorkerWithArgs("delbackup", [filename]);
+}
+
+async function restoreBackup(filename) {
+  return await requestWorkerWithArgs("restore", [filename]);
+}
+
+async function renameBackup(oldName, newName) {
+  return await requestWorkerWithArgs("rename", [oldName, newName]);
+}
+
+// --- World & Admin Services ---
+async function resetWorld(seed = null) {
+  const args = seed ? ["--seed", seed] : [];
+  return await requestWorkerWithArgs("newmap", args);
+}
+
+async function setVersion(version) {
+  return await requestWorkerWithArgs("setversion", [version]);
+}
+
+async function kickPlayer(player) {
+  return await requestWorkerWithArgs("kick", [player]);
+}
+
+async function banPlayer(player, reason = "Banned by admin") {
+  return await requestWorkerWithArgs("ban", [player, reason]);
 }
 
 module.exports = {
@@ -125,4 +190,13 @@ module.exports = {
   setProperties,
   getStatus,
   getProperties,
+  listBackups,
+  createBackup,
+  deleteBackup,
+  restoreBackup,
+  renameBackup,
+  resetWorld,
+  setVersion,
+  kickPlayer,
+  banPlayer,
 };
