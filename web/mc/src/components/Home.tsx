@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import MinecraftController from "./MinecraftController";
+import MinecraftManager from "./MinecraftManager";
 
 interface HomeProps {
   setIsAuthenticated: (isAuthenticated: boolean) => void;
@@ -30,7 +30,7 @@ const Home: React.FC<HomeProps> = ({ setIsAuthenticated, userRole }) => {
             <div className="bg-yellow-50 text-yellow-800 px-4 py-2 rounded-full text-sm font-semibold inline-block mb-6 border border-yellow-200">
               ⚡ Admin Access Granted
             </div>
-            <MinecraftController />
+            <MinecraftManager />
           </div>
         )}
 
