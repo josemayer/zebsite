@@ -131,8 +131,8 @@ const BackupController: React.FC<BackupControllerProps> = ({
           console.error("Polling status failed", err);
         }
 
-        // Safety timeout (45s) to prevent infinite loading if boot fails
-        if (Date.now() - startTime > 45000) {
+        // Safety timeout (120s) to prevent infinite loading if boot fails
+        if (Date.now() - startTime > 120000) {
           clearInterval(pollInterval);
           syncStatus(); // Final sync to show real state (likely 'off')
         }

@@ -57,7 +57,7 @@ const WorldController: React.FC<WorldControllerProps> = ({
   const [isResetting, setIsResetting] = useState(false);
 
   const [resetProgress, setResetProgress] = useState(0);
-  const RESET_TIMEOUT = 60000; // 60 seconds
+  const RESET_TIMEOUT = 120000; // 120 seconds
 
   const fetchAllData = useCallback(async () => {
     try {
