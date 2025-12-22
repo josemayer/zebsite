@@ -186,7 +186,8 @@ async function banPlayer(player, reason = "Banned by admin") {
 }
 
 async function getLiveInfo() {
-  return await requestWorker("getlive");
+  const live_info = await requestWorker("getlive");
+  return { live_info };
 }
 
 module.exports = {
