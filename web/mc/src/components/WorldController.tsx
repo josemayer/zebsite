@@ -57,7 +57,7 @@ const WorldController: React.FC<WorldControllerProps> = ({
   const [isResetting, setIsResetting] = useState(false);
 
   const [resetProgress, setResetProgress] = useState(0);
-  const RESET_TIMEOUT = 45000; // 45 seconds
+  const RESET_TIMEOUT = 60000; // 60 seconds
 
   const fetchAllData = useCallback(async () => {
     try {
@@ -131,49 +131,57 @@ const WorldController: React.FC<WorldControllerProps> = ({
   };
 
   const handleResetWorld = async () => {
+    // 1. Immediate UI state changes
     setIsResetting(true);
     setResetProgress(0);
     onStatusChange("loading");
     setIsResetModalOpen(false);
 
-    try {
-      await api.post("/mine/world/reset", { seed: resetSeed });
+    // 2. Start the timer IMMEDIATELY
+    const startTime = Date.now();
 
-      const startTime = Date.now();
+    const pollInterval = setInterval(async () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min((elapsed / RESET_TIMEOUT) * 90, 90);
+      setResetProgress(progress);
 
-      const pollInterval = setInterval(async () => {
-        const elapsed = Date.now() - startTime;
-
-        // Calculate smooth progress up to 90% (leaving 10% for the "jump" to finish)
-        const progress = Math.min((elapsed / RESET_TIMEOUT) * 90, 90);
-        setResetProgress(progress);
-
+      // Only start polling the status after a short delay (e.g., 5s)
+      // to give the server time to actually shut down/start reset
+      if (elapsed > 5000) {
         try {
           const res = await api.get("/mine/status");
           if (res.data.status === "on") {
-            setResetProgress(100); // Jump to end
+            setResetProgress(100);
             setTimeout(() => {
               onStatusChange("on");
               clearInterval(pollInterval);
               setIsResetting(false);
               setResetProgress(0);
               fetchAllData();
-            }, 500); // Brief pause to show full bar
+            }, 500);
           }
         } catch (err) {
-          /* Rebooting... */
+          /* Server is down/restarting */
         }
+      }
 
-        if (elapsed > RESET_TIMEOUT) {
-          clearInterval(pollInterval);
-          setIsResetting(false);
-          setResetProgress(0);
-          syncStatus();
-        }
-      }, 1000);
+      if (elapsed > RESET_TIMEOUT) {
+        clearInterval(pollInterval);
+        setIsResetting(false);
+        setResetProgress(0);
+        syncStatus();
+      }
+    }, 1000);
+
+    // 3. Fire the API request in the background
+    try {
+      await api.post("/mine/world/reset", { seed: resetSeed });
     } catch (err) {
-      alert("Reset request failed");
+      // If the initial request fails, we stop everything
+      clearInterval(pollInterval);
+      showFeedback("error", "Reset request failed");
       setIsResetting(false);
+      setResetProgress(0);
       syncStatus();
     } finally {
       setResetSeed("");
