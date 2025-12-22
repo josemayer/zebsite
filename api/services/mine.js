@@ -193,11 +193,21 @@ async function setVersion(version) {
 }
 
 async function kickPlayer(player) {
-  return await requestWorkerWithArgs("kick", [player]);
+  const result = await requestWorkerWithArgs("kick", [player]);
+
+  if (!result.success) throw new Error(result.message);
+  return result;
 }
 
 async function banPlayer(player, reason = "Banned by admin") {
-  return await requestWorkerWithArgs("ban", [player, "--reason", reason]);
+  const result = await requestWorkerWithArgs("ban", [
+    player,
+    "--reason",
+    reason,
+  ]);
+
+  if (!result.success) throw new Error(result.message);
+  return result;
 }
 
 async function getLiveInfo() {
