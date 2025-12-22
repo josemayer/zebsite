@@ -252,4 +252,28 @@ router.post(
   }
 );
 
+// GET /mine/live
+router.get("/live", [authenticateToken, verifyAdminRole], async (req, res) => {
+  try {
+    const result = await mineService.getLiveInfo();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET /mine/backups
+router.get(
+  "/backups",
+  [authenticateToken, verifyAdminRole],
+  async (req, res) => {
+    try {
+      const result = await mineService.listBackups();
+      res.json(result);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+);
+
 module.exports = router;

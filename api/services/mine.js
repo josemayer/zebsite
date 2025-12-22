@@ -185,6 +185,10 @@ async function banPlayer(player, reason = "Banned by admin") {
   return await requestWorkerWithArgs("ban", [player, reason]);
 }
 
+async function getLiveInfo() {
+  return await requestWorker("getlive");
+}
+
 module.exports = {
   setState,
   setProperties,
@@ -199,4 +203,5 @@ module.exports = {
   setVersion,
   kickPlayer,
   banPlayer,
+  getLiveInfo,
 };
