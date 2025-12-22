@@ -166,7 +166,7 @@ async function deleteBackup(filename) {
 }
 
 async function restoreBackup(filename) {
-  const result = await requestWorkerWithArgs("restore", [filename]);
+  const result = await requestWorkerWithArgs("restore", [filename], 120);
 
   if (!result.success) throw new Error(result.message);
   return result;
@@ -182,7 +182,7 @@ async function renameBackup(oldName, newName) {
 // --- World & Admin Services ---
 async function resetWorld(seed = null) {
   const args = seed ? ["--seed", seed] : [];
-  const result = await requestWorkerWithArgs("newmap", args, 60);
+  const result = await requestWorkerWithArgs("newmap", args, 120);
 
   if (!result.success) throw new Error(result.message);
   return result;
