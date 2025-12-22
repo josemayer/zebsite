@@ -40,7 +40,7 @@ async function requestWorker(command) {
 /**
  * Generic helper for commands with arguments
  */
-async function requestWorkerWithArgs(command, args = []) {
+async function requestWorkerWithArgs(command, args = [], timeout = 15) {
   const requestId = uuidv4();
   const replyTo = `mc_response:${requestId}`;
 
@@ -51,7 +51,7 @@ async function requestWorkerWithArgs(command, args = []) {
   });
 
   await redis.rpush("mc_commands_queue", payload);
-  const result = await redis.blpop(replyTo, 15); // Slightly longer timeout for disk-heavy tasks
+  const result = await redis.blpop(replyTo, timeout); // Slightly longer timeout for disk-heavy tasks
 
   if (!result) throw new Error("Worker timeout");
   return JSON.parse(result[1]);
@@ -182,7 +182,7 @@ async function renameBackup(oldName, newName) {
 // --- World & Admin Services ---
 async function resetWorld(seed = null) {
   const args = seed ? ["--seed", seed] : [];
-  const result = await requestWorkerWithArgs("newmap", args);
+  const result = await requestWorkerWithArgs("newmap", args, 60);
 
   if (!result.success) throw new Error(result.message);
   return result;
