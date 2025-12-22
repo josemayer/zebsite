@@ -6,7 +6,6 @@
   width: 10px;
   height: 10px;
   pointer-events: none;
-  z-index: 20;
   transition: all 200ms ease-in-out;
   opacity: 1;
 }

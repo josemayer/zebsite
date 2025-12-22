@@ -54,7 +54,7 @@ const MinecraftManager: React.FC = () => {
         {/* --- Unified Tab & Control Bar --- */}
         <div className="flex items-end justify-between px-2">
           {/* Left: Folder Tabs */}
-          <nav className="flex items-end gap-2 h-[52px]">
+          <nav className="flex items-end gap-2 h-[52px] relative z-10">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -66,7 +66,7 @@ const MinecraftManager: React.FC = () => {
                   border-t border-x rounded-t-xl
                   ${
                     isActive
-                      ? "bg-white text-blue-600 border-gray-200 z-10 h-[48px] active-tab-curve"
+                      ? "bg-white text-blue-600 border-gray-200 h-[48px] active-tab-curve"
                       : "bg-gray-200/50 text-gray-400 border-transparent hover:bg-gray-200 h-[40px] mb-0"
                   }
                 `}
@@ -80,7 +80,7 @@ const MinecraftManager: React.FC = () => {
 
                   {/* Visual Fix: Seamless connection to container */}
                   {isActive && (
-                    <div className="absolute -bottom-[2px] left-0 right-0 h-[3px] bg-white z-20" />
+                    <div className="absolute -bottom-[2px] left-0 right-0 h-[3px] bg-white" />
                   )}
                 </button>
               );
@@ -104,7 +104,7 @@ const MinecraftManager: React.FC = () => {
         </div>
 
         {/* --- Main Content Container --- */}
-        <div className="bg-white rounded-xl rounded-tl-none shadow-xl border border-gray-200 relative z-0">
+        <div className="bg-white rounded-xl rounded-tl-none shadow-xl border border-gray-200 relative">
           <div className="p-1">
             {activeTab === "server" && (
               <ServerController
@@ -119,7 +119,12 @@ const MinecraftManager: React.FC = () => {
                 syncStatus={fetchStatus}
               />
             )}
-            {activeTab === "world" && <WorldController />}
+            {activeTab === "world" && (
+              <WorldController
+                onStatusChange={(s) => setServerStatus(s)}
+                syncStatus={fetchStatus}
+              />
+            )}
           </div>
         </div>
       </div>
