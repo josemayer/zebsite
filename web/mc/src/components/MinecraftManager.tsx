@@ -9,6 +9,7 @@ import {
 import api from "./api";
 import ServerController from "./ServerController";
 import BackupController from "./BackupController";
+import WorldController from "./WorldController";
 import { StatusBadge } from "./StatusComponents";
 
 type TabID = "server" | "backups" | "world";
@@ -118,12 +119,7 @@ const MinecraftManager: React.FC = () => {
                 syncStatus={fetchStatus}
               />
             )}
-            {activeTab === "world" && (
-              <div className="p-20 text-center text-gray-400 animate-in fade-in duration-500">
-                <GlobeAmericasIcon className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                <p className="text-sm font-medium">World Management Module</p>
-              </div>
-            )}
+            {activeTab === "world" && <WorldController />}
           </div>
         </div>
       </div>
