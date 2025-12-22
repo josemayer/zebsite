@@ -152,25 +152,40 @@ async function listBackups() {
 }
 
 async function createBackup() {
-  return await requestWorker("backup");
+  const result = await requestWorker("backup");
+
+  if (!result.success) throw new Error(result.message);
+  return result;
 }
 
 async function deleteBackup(filename) {
-  return await requestWorkerWithArgs("delbackup", [filename]);
+  const result = await requestWorkerWithArgs("delbackup", [filename]);
+
+  if (!result.success) throw new Error(result.message);
+  return result;
 }
 
 async function restoreBackup(filename) {
-  return await requestWorkerWithArgs("restore", [filename]);
+  const result = await requestWorkerWithArgs("restore", [filename]);
+
+  if (!result.success) throw new Error(result.message);
+  return result;
 }
 
 async function renameBackup(oldName, newName) {
-  return await requestWorkerWithArgs("rename", [oldName, newName]);
+  const result = await requestWorkerWithArgs("rename", [oldName, newName]);
+
+  if (!result.success) throw new Error(result.message);
+  return result;
 }
 
 // --- World & Admin Services ---
 async function resetWorld(seed = null) {
   const args = seed ? ["--seed", seed] : [];
-  return await requestWorkerWithArgs("newmap", args);
+  const result = await requestWorkerWithArgs("newmap", args);
+
+  if (!result.success) throw new Error(result.message);
+  return result;
 }
 
 async function setVersion(version) {
@@ -182,7 +197,7 @@ async function kickPlayer(player) {
 }
 
 async function banPlayer(player, reason = "Banned by admin") {
-  return await requestWorkerWithArgs("ban", [player, reason]);
+  return await requestWorkerWithArgs("ban", [player, "--reason", reason]);
 }
 
 async function getLiveInfo() {
