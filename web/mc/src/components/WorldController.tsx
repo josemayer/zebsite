@@ -150,7 +150,7 @@ const WorldController: React.FC = () => {
               Players
             </p>
             <p className="text-xl font-black text-gray-800">
-              {data?.playerCount || "-"}{" "}
+              {data?.playerCount ?? "-"}{" "}
               <span className="text-gray-300">/</span> {data?.maxPlayers || "-"}
             </p>
           </div>
