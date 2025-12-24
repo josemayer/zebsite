@@ -58,6 +58,27 @@ const BackupController: React.FC<BackupControllerProps> = ({
     }
   };
 
+  const formatStorage = (mb: number, forceUnit?: string) => {
+    const units = ["MB", "GB", "TB", "PB"];
+    let value = mb;
+    let unitIndex = 0;
+
+    if (forceUnit) {
+      unitIndex = units.indexOf(forceUnit);
+      value = mb / Math.pow(1024, unitIndex);
+    } else {
+      while (value >= 1024 && unitIndex < units.length - 1) {
+        value /= 1024;
+        unitIndex++;
+      }
+    }
+
+    return {
+      value: value % 1 === 0 ? value.toString() : value.toFixed(1),
+      unit: units[unitIndex],
+    };
+  };
+
   const fetchData = useCallback(async () => {
     try {
       const res = await api.get("/mine/backups");
@@ -160,27 +181,42 @@ const BackupController: React.FC<BackupControllerProps> = ({
   return (
     <div className="p-8 animate-in fade-in duration-500 max-w-full overflow-x-hidden">
       {/* Capacity Header */}
-      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
             <span>📦</span> Backup Management
           </h2>
-          {capacity && (
-            <div className="mt-2 flex items-center gap-3">
-              <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
-                <div
-                  className={`h-full transition-all duration-500 ${
-                    capacity.percent_used > 80 ? "bg-red-500" : "bg-blue-500"
-                  }`}
-                  style={{ width: `${capacity.percent_used}%` }}
-                />
-              </div>
-              <span className="text-[10px] font-bold text-gray-500 uppercase">
-                {capacity.current_mb}MB / {capacity.max_mb}MB (
-                {capacity.percent_used}%)
-              </span>
-            </div>
-          )}
+          {capacity &&
+            (() => {
+              const maxScaled = formatStorage(capacity.max_mb);
+              const currentScaled = formatStorage(
+                capacity.current_mb,
+                maxScaled.unit
+              );
+
+              return (
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+                    <div
+                      className={`h-full transition-all duration-500 ${
+                        capacity.percent_used > 80
+                          ? "bg-red-500"
+                          : "bg-blue-500"
+                      }`}
+                      style={{ width: `${capacity.percent_used}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">
+                    {currentScaled.value}
+                    {currentScaled.unit} / {maxScaled.value}
+                    {maxScaled.unit}
+                    <span className="ml-1 text-gray-400">
+                      ({capacity.percent_used}%)
+                    </span>
+                  </span>
+                </div>
+              );
+            })()}
         </div>
         <button
           onClick={handleCreateBackup}
@@ -196,17 +232,42 @@ const BackupController: React.FC<BackupControllerProps> = ({
         </button>
       </div>
 
-      {/* Restore Warning Alert */}
-      <div className="mb-6 bg-amber-50 border border-amber-100 p-4 rounded-xl flex gap-3">
-        <ExclamationTriangleIcon className="h-5 w-5 text-amber-600 shrink-0" />
-        <div className="text-xs text-amber-800 leading-relaxed">
-          <p className="font-bold mb-1 text-amber-900 uppercase tracking-tight">
-            Restoration Policy
-          </p>
-          Restoring replaces the live world. A safety backup of your current
-          files is created automatically. The server will restart to apply
-          changes.
-        </div>
+      {/* Restore Warning Alert - Mobile Optimized */}
+      <div className="mb-6 bg-amber-50/50 border border-amber-100 rounded-xl overflow-hidden transition-all duration-300">
+        <details className="group">
+          <summary className="list-none cursor-pointer p-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <ExclamationTriangleIcon className="h-5 w-5 text-amber-600 shrink-0" />
+              <span className="text-[10px] font-black text-amber-900 uppercase tracking-tight">
+                Restoration Policy
+              </span>
+            </div>
+            {/* Visual cue to expand: an arrow that rotates */}
+            <div className="text-amber-600 group-open:rotate-180 transition-transform duration-200">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </summary>
+
+          <div className="px-4 pb-4 pt-0 animate-in fade-in slide-in-from-top-1">
+            <p className="text-xs text-amber-800 leading-relaxed border-t border-amber-200/50 pt-3">
+              Restoring replaces the live world. A safety backup of your current
+              files is created automatically. The server will restart to apply
+              changes.
+            </p>
+          </div>
+        </details>
       </div>
 
       {backups.length === 0 ? (
@@ -288,7 +349,11 @@ const BackupController: React.FC<BackupControllerProps> = ({
                       {formatDate(file.created)}
                     </span>
                     <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1 shrink-0">
-                      <CircleStackIcon className="h-3 w-3" /> {file.size_mb} MB
+                      <CircleStackIcon className="h-3 w-3" />
+                      {(() => {
+                        const scaled = formatStorage(file.size_mb);
+                        return `${scaled.value} ${scaled.unit}`;
+                      })()}
                     </span>
                   </div>
                 </div>

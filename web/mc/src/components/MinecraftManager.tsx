@@ -4,7 +4,6 @@ import {
   CommandLineIcon,
   ArchiveBoxIcon,
   GlobeAmericasIcon,
-  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import api from "./api";
 import ServerController from "./ServerController";
@@ -19,7 +18,6 @@ const MinecraftManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabID>("server");
   const [serverStatus, setServerStatus] = useState<LiveStatus>("off");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -81,16 +79,21 @@ const MinecraftManager: React.FC = () => {
                     {/* Status Beacon - Nested correctly within the icon branch */}
                     {isServerTab && (
                       <span
-                        className={`md:hidden absolute -top-1 -right-1 h-2 w-2 rounded-full border border-white
-                  ${
-                    serverStatus === "on"
-                      ? "bg-green-500"
-                      : serverStatus === "loading"
-                      ? "bg-amber-500 animate-pulse"
-                      : "bg-gray-400"
-                  }
-                `}
-                      />
+                        className={`sm:hidden absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full border-2 border-white
+                        ${
+                          serverStatus === "on"
+                            ? "bg-emerald-500"
+                            : serverStatus === "loading"
+                            ? "bg-amber-500"
+                            : "bg-slate-400"
+                        }
+                      `}
+                      >
+                        {/* Visual Pulse for Loading State */}
+                        {serverStatus === "loading" && (
+                          <span className="absolute inset-0 rounded-full bg-amber-500 animate-ping opacity-75"></span>
+                        )}
+                      </span>
                     )}
                   </div>
                   <span className="hidden sm:inline">{tab.label}</span>

@@ -3,42 +3,46 @@ import React from "react";
 type LiveStatus = "on" | "off" | "loading";
 
 export const StatusBadge: React.FC<{ status: LiveStatus }> = ({ status }) => {
-  const configs = {
+  const config = {
     on: {
-      bg: "bg-green-100",
-      text: "text-green-700",
-      dot: "bg-green-500",
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
+      dot: "bg-emerald-500",
       label: "Online",
-      pulse: true,
-    },
-    off: {
-      bg: "bg-gray-100",
-      text: "text-gray-600",
-      dot: "bg-gray-400",
-      label: "Offline",
-      pulse: false,
     },
     loading: {
-      bg: "bg-blue-100",
-      text: "text-blue-700",
-      dot: "bg-blue-500",
-      label: "Transitioning",
-      pulse: true,
+      bg: "bg-amber-50",
+      text: "text-amber-700",
+      dot: "bg-amber-500",
+      label: "Loading...",
+    },
+    off: {
+      bg: "bg-slate-100",
+      text: "text-slate-600",
+      dot: "bg-slate-400",
+      label: "Offline",
     },
   };
 
-  const config = configs[status] || configs.off;
+  const current = config[status];
 
   return (
     <div
-      className={`flex items-center gap-2 px-3 py-1 rounded-full ${config.bg} ${config.text} text-[11px] font-bold uppercase tracking-tight border border-current/10`}
+      className={`flex items-center gap-2 px-3 py-1 rounded-full border border-current/10 ${current.bg} ${current.text}`}
     >
-      <span
-        className={`h-2 w-2 rounded-full ${config.dot} ${
-          config.pulse ? "animate-pulse" : ""
-        }`}
-      />
-      {config.label}
+      <span className="relative flex h-2 w-2">
+        {status === "loading" && (
+          <span
+            className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${current.dot}`}
+          ></span>
+        )}
+        <span
+          className={`relative inline-flex rounded-full h-2 w-2 ${current.dot}`}
+        ></span>
+      </span>
+      <span className="text-[10px] font-black uppercase tracking-wider">
+        {current.label}
+      </span>
     </div>
   );
 };
