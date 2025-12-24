@@ -57,6 +57,7 @@ const MinecraftManager: React.FC = () => {
           <nav className="flex items-end gap-2 h-[52px] relative z-10">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
+              const isServerTab = tab.id === "server";
               return (
                 <button
                   key={tab.id}
@@ -71,11 +72,27 @@ const MinecraftManager: React.FC = () => {
                   }
                 `}
                 >
-                  <tab.icon
-                    className={`h-4 w-4 ${
-                      isActive ? "text-blue-600" : "text-gray-400"
-                    }`}
-                  />
+                  <div className="relative flex items-center justify-center">
+                    <tab.icon
+                      className={`h-4 w-4 ${
+                        isActive ? "text-blue-600" : "text-gray-400"
+                      }`}
+                    />
+                    {/* Status Beacon - Nested correctly within the icon branch */}
+                    {isServerTab && (
+                      <span
+                        className={`md:hidden absolute -top-1 -right-1 h-2 w-2 rounded-full border border-white
+                  ${
+                    serverStatus === "on"
+                      ? "bg-green-500"
+                      : serverStatus === "loading"
+                      ? "bg-amber-500 animate-pulse"
+                      : "bg-gray-400"
+                  }
+                `}
+                      />
+                    )}
+                  </div>
                   <span className="hidden sm:inline">{tab.label}</span>
 
                   {/* Visual Fix: Seamless connection to container */}
@@ -88,17 +105,7 @@ const MinecraftManager: React.FC = () => {
           </nav>
 
           {/* Right: Status & Global Actions */}
-          <div className="flex items-center gap-3 mb-2">
-            <button
-              onClick={fetchStatus}
-              disabled={isRefreshing}
-              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-white rounded-lg transition-all"
-              title="Refresh Status"
-            >
-              <ArrowPathIcon
-                className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}
-              />
-            </button>
+          <div className="sm:flex mb-2 hidden">
             <StatusBadge status={serverStatus} />
           </div>
         </div>

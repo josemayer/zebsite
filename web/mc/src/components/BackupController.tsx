@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   ArchiveBoxIcon,
-  ArrowDownTrayIcon,
   TrashIcon,
   PencilSquareIcon,
   ArrowPathRoundedSquareIcon,
@@ -45,6 +44,20 @@ const BackupController: React.FC<BackupControllerProps> = ({
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [confirmRestore, setConfirmRestore] = useState<string | null>(null);
 
+  const formatDate = (isoString: string) => {
+    try {
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date(isoString));
+    } catch (e) {
+      return isoString;
+    }
+  };
+
   const fetchData = useCallback(async () => {
     try {
       const res = await api.get("/mine/backups");
@@ -85,10 +98,9 @@ const BackupController: React.FC<BackupControllerProps> = ({
     if (!editingName || !editingName.val) return;
 
     try {
-      // Send only the edited label (val), not the stitched name
       await api.put("/mine/backups/rename", {
-        filename: oldFullName, // The original full name for lookup
-        newName: editingName.val, // Only the "middle" part
+        filename: oldFullName,
+        newName: editingName.val,
       });
       setEditingName(null);
       await fetchData();
@@ -109,13 +121,12 @@ const BackupController: React.FC<BackupControllerProps> = ({
 
   const handleRestore = async (filename: string) => {
     setIsProcessing(true);
-    onStatusChange("loading"); // Force loading state immediately
+    onStatusChange("loading");
     setConfirmRestore(null);
 
     try {
       await api.post("/mine/backups/restore", { filename });
 
-      // Polling Logic: Hold 'loading' state until server is actually 'on'
       const startTime = Date.now();
       const pollInterval = setInterval(async () => {
         try {
@@ -126,30 +137,28 @@ const BackupController: React.FC<BackupControllerProps> = ({
             onStatusChange("on");
             clearInterval(pollInterval);
           }
-          // If status is 'off', we do nothing and let the UI stay 'loading'
         } catch (err) {
           console.error("Polling status failed", err);
         }
 
-        // Safety timeout (120s) to prevent infinite loading if boot fails
         if (Date.now() - startTime > 120000) {
           clearInterval(pollInterval);
-          syncStatus(); // Final sync to show real state (likely 'off')
+          syncStatus();
         }
       }, 3000);
     } catch (err) {
       alert("Restore request failed");
-      syncStatus(); // Revert to real status on API error
+      syncStatus();
     } finally {
       setIsProcessing(false);
-      fetchData(); // Refresh backup list to show the auto-safety-backup
+      fetchData();
     }
   };
 
   if (isLoading) return <BackupSkeleton />;
 
   return (
-    <div className="p-8 animate-in fade-in duration-500">
+    <div className="p-8 animate-in fade-in duration-500 max-w-full overflow-x-hidden">
       {/* Capacity Header */}
       <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -207,9 +216,9 @@ const BackupController: React.FC<BackupControllerProps> = ({
           {backups.map((file) => (
             <div
               key={file.name}
-              className="group bg-white border border-gray-100 p-4 rounded-xl hover:border-blue-200 hover:shadow-md transition-all"
+              className="group bg-white border border-gray-100 p-4 rounded-xl hover:border-blue-200 hover:shadow-md transition-all overflow-hidden"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex md:items-center justify-between gap-2 flex-col md:flex-row">
                 <div className="flex-1 min-w-0">
                   {editingName?.file === file.name ? (
                     <div className="flex items-center w-full max-w-full gap-1 group/input">
@@ -244,7 +253,7 @@ const BackupController: React.FC<BackupControllerProps> = ({
                       </div>
 
                       {/* Minimal Action Buttons */}
-                      <div className="flex items-center gap-1 ml-2">
+                      <div className="flex items-center gap-1 ml-2 shrink-0">
                         <button
                           onClick={() => handleRename(file.name)}
                           className="text-[10px] font-black text-blue-600 hover:text-blue-800 uppercase tracking-tighter"
@@ -261,7 +270,7 @@ const BackupController: React.FC<BackupControllerProps> = ({
                     </div>
                   ) : (
                     <h3 className="text-sm font-bold text-gray-700 truncate flex items-center gap-2">
-                      {file.name}
+                      <span className="truncate">{file.name}</span>
                       <button
                         onClick={() => {
                           const { label } = parseFileName(file.name);
@@ -275,15 +284,16 @@ const BackupController: React.FC<BackupControllerProps> = ({
                   )}
                   <div className="flex items-center gap-3 mt-1">
                     <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1">
-                      <ClockIcon className="h-3 w-3" /> {file.created}
+                      <ClockIcon className="h-3 w-3" />{" "}
+                      {formatDate(file.created)}
                     </span>
-                    <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1">
+                    <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1 shrink-0">
                       <CircleStackIcon className="h-3 w-3" /> {file.size_mb} MB
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 shrink-0 justify-end">
                   {/* Action Buttons */}
                   <ActionButton
                     icon={<ArrowPathRoundedSquareIcon />}
@@ -330,7 +340,7 @@ const BackupController: React.FC<BackupControllerProps> = ({
 const ActionButton = ({ icon, color, onClick, tooltip }: any) => (
   <button
     onClick={onClick}
-    className={`p-2 rounded-lg transition-colors ${color}`}
+    className={`p-2 rounded-lg transition-colors shrink-0 ${color}`}
     title={tooltip}
   >
     {React.cloneElement(icon, { className: "h-5 w-5" })}
@@ -339,8 +349,10 @@ const ActionButton = ({ icon, color, onClick, tooltip }: any) => (
 
 const ConfirmBox = ({ msg, onConfirm, onCancel, confirmColor }: any) => (
   <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between animate-in slide-in-from-top-2">
-    <span className="text-[11px] font-bold text-gray-500 uppercase">{msg}</span>
-    <div className="flex gap-2">
+    <span className="text-[11px] font-bold text-gray-500 uppercase truncate mr-2">
+      {msg}
+    </span>
+    <div className="flex gap-2 shrink-0">
       <button
         onClick={onCancel}
         className="text-[10px] font-bold text-gray-400 px-3 py-1"
