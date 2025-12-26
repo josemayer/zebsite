@@ -4,14 +4,16 @@ import {
   CommandLineIcon,
   ArchiveBoxIcon,
   GlobeAmericasIcon,
+  PuzzlePieceIcon,
 } from "@heroicons/react/24/outline";
 import api from "./api";
 import ServerController from "./ServerController";
 import BackupController from "./BackupController";
 import WorldController from "./WorldController";
+import ConfigController from "./ConfigController";
 import { StatusBadge } from "./StatusComponents";
 
-type TabID = "server" | "backups" | "world";
+type TabID = "server" | "backups" | "world" | "mods";
 type LiveStatus = "on" | "off" | "loading";
 
 const MinecraftManager: React.FC = () => {
@@ -38,6 +40,7 @@ const MinecraftManager: React.FC = () => {
     { id: "server", label: "Server", icon: CommandLineIcon },
     { id: "backups", label: "Backups", icon: ArchiveBoxIcon },
     { id: "world", label: "World", icon: GlobeAmericasIcon },
+    { id: "mods", label: "Mods", icon: PuzzlePieceIcon },
   ];
 
   if (isInitialLoad)
@@ -131,6 +134,12 @@ const MinecraftManager: React.FC = () => {
             )}
             {activeTab === "world" && (
               <WorldController
+                onStatusChange={(s) => setServerStatus(s)}
+                syncStatus={fetchStatus}
+              />
+            )}
+            {activeTab === "mods" && (
+              <ConfigController
                 onStatusChange={(s) => setServerStatus(s)}
                 syncStatus={fetchStatus}
               />
