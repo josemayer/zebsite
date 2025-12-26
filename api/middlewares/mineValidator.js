@@ -29,10 +29,10 @@ const validateMinecraftBusinessRules = (configs) => {
     );
   }
 
-  if (configs.MODPLATFORM === "AUTO_CURSEFORGE") {
+  if (configs.MODPACK_PLATFORM === "AUTO_CURSEFORGE") {
     if (!isModdedServer) {
       errors.push(
-        "MODPLATFORM=AUTO_CURSEFORGE requires a modded TYPE (FORGE/FABRIC/etc)."
+        "MODPACK_PLATFORM=AUTO_CURSEFORGE requires a modded TYPE (FORGE/FABRIC/etc)."
       );
     }
 
