@@ -64,7 +64,13 @@ const validateMinecraftBusinessRules = (configs) => {
 
 const validateConfig = (req, res, next) => {
   const { configs } = req.body;
-  const restrictedKeys = ["DOCKER_HOST", "PATH", "PWD", "CF_API_KEY"]; // Keys users shouldn't touch
+  const restrictedKeys = [
+    "DOCKER_HOST",
+    "PATH",
+    "PWD",
+    "CF_API_KEY",
+    "IMAGE_TAG",
+  ]; // Keys users shouldn't touch
 
   if (!configs || typeof configs !== "object") {
     return res.status(400).json({ message: "Invalid configs format." });
