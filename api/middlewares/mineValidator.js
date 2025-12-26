@@ -1,25 +1,29 @@
 const validateMinecraftBusinessRules = (configs) => {
   const errors = [];
 
+  const hasValue = (val) => {
+    if (val === undefined || val === null || val === "") return false;
+    if (Array.isArray(val)) return val.length > 0;
+    return true;
+  };
+
   if (configs.MC_VERSION && !/^\d+\.\d+(\.\d+)?$/.test(configs.MC_VERSION)) {
     errors.push("MC_VERSION must be a valid semver (e.g., 1.21.1)");
   }
 
-  const isPluginServer = ["PAPER", "SPIGOT", "PURPUR"].includes(configs.TYPE);
-  const isModdedServer = ["FORGE", "FABRIC", "NEOFORGE", "QUILT"].includes(
-    configs.TYPE
-  );
+  const isPluginServer = ["PAPER", "SPIGOT"].includes(configs.TYPE);
+  const isModdedServer = ["FORGE", "FABRIC"].includes(configs.TYPE);
 
   if (
     isPluginServer &&
-    (configs.CURSEFORGE_FILES || configs.MODRINTH_PROJECTS)
+    (hasValue(configs.CURSEFORGE_FILES) || hasValue(configs.MODRINTH_PROJECTS))
   ) {
     errors.push(
       `TYPE ${configs.TYPE} is for Plugins. Use SPIGET_RESOURCES instead of Mod lists.`
     );
   }
 
-  if (isModdedServer && configs.SPIGET_RESOURCES) {
+  if (isModdedServer && hasValue(configs.SPIGET_RESOURCES)) {
     errors.push(
       `TYPE ${configs.TYPE} is for Mods. Use CURSEFORGE_FILES or MODRINTH_PROJECTS instead of Plugins.`
     );
@@ -31,15 +35,14 @@ const validateMinecraftBusinessRules = (configs) => {
         "MODPLATFORM=AUTO_CURSEFORGE requires a modded TYPE (FORGE/FABRIC/etc)."
       );
     }
-    // CF_PAGE_URL is for Modpacks. If it exists, we usually ignore individual files.
-    if (configs.CF_PAGE_URL && configs.CURSEFORGE_FILES) {
+
+    if (hasValue(configs.CF_PAGE_URL) && hasValue(configs.CURSEFORGE_FILES)) {
       errors.push(
         "Cannot use CF_PAGE_URL (Modpack) and CURSEFORGE_FILES (Individual Mods) together."
       );
     }
 
-    // CF_EXCLUDE_MODS requires CF_PAGE_URL filled
-    if (configs.CF_EXCLUDE_MODS && !configs.CF_PAGE_URL) {
+    if (hasValue(configs.CF_EXCLUDE_MODS) && !hasValue(configs.CF_PAGE_URL)) {
       errors.push(
         "You need CF_PAGE_URL modpack URL to exclude mods from modpack"
       );
@@ -79,7 +82,7 @@ const validateConfig = (req, res, next) => {
   }
 
   const errors = validateMinecraftBusinessRules(configs);
-  if (errors) {
+  if (errors.length > 0) {
     return res
       .status(422)
       .json({ message: "Configuration with validation error", errors });
