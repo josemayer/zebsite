@@ -237,6 +237,29 @@ async function configServer(configs) {
 
 async function getServerConfig() {
   const configs = await requestWorker("getconfig");
+
+  const formatAsArrays = [
+    "CURSEFORGE_FILES",
+    "SPIGET_RESOURCES",
+    "MODRINTH_PROJECTS",
+    "CF_EXCLUDE_MODS",
+  ];
+
+  const formattedConfigs = Object.fromEntries(
+    Object.entries(configs).map(([key, value]) => {
+      if (formatAsArrays.includes(key)) {
+        return [
+          key,
+          value
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+        ];
+      }
+      return [key, value];
+    })
+  );
+
   return { configs };
 }
 
