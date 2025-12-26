@@ -297,4 +297,18 @@ router.put(
   }
 );
 
+// GET /mine/config
+router.get(
+  "/config",
+  [authenticateToken, verifyAdminRole],
+  async (req, res) => {
+    try {
+      const result = await mineService.getServerConfig();
+      res.json(result);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+);
+
 module.exports = router;

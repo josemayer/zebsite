@@ -235,6 +235,11 @@ async function configServer(configs) {
   return result;
 }
 
+async function getServerConfig() {
+  const configs = await requestWorker("getconfig");
+  return { configs };
+}
+
 async function getLiveInfo() {
   const live_info = await requestWorker("getlive");
   return { live_info };
@@ -256,4 +261,5 @@ module.exports = {
   banPlayer,
   getLiveInfo,
   configServer,
+  getServerConfig,
 };
