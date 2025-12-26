@@ -210,6 +210,31 @@ async function banPlayer(player, reason = "Banned by admin") {
   return result;
 }
 
+async function configServer(configs) {
+  const entries = Object.entries(configs);
+
+  if (entries.length === 0) {
+    throw new Error("No configuration provided");
+  }
+
+  const formattedArgs = entries.map(([key, value]) => {
+    if (Array.isArray(value)) {
+      finalValue = value.join(",");
+    } else {
+      finalValue = String(value);
+    }
+    return `${key}=${finalValue}`;
+  });
+
+  const result = await requestWorkerWithArgs("setconfig", formattedArgs, 120);
+
+  if (!result.success) {
+    throw new Error(result.message);
+  }
+
+  return result;
+}
+
 async function getLiveInfo() {
   const live_info = await requestWorker("getlive");
   return { live_info };
@@ -230,4 +255,5 @@ module.exports = {
   kickPlayer,
   banPlayer,
   getLiveInfo,
+  configServer,
 };

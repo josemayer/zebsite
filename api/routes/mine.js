@@ -4,6 +4,7 @@ const {
   authenticateToken,
   verifyAdminRole,
 } = require("../middlewares/authenticateToken");
+const { validateConfig } = require("../middlewares/mineValidator");
 const mineService = require("../services/mine");
 
 // GET /mine/status
@@ -272,6 +273,26 @@ router.get(
       res.json(result);
     } catch (err) {
       res.status(500).json({ message: err.message });
+    }
+  }
+);
+
+// PUT /mine/config
+router.put(
+  "/config",
+  [authenticateToken, verifyAdminRole, validateConfig],
+  async function (req, res) {
+    try {
+      const result = await mineService.configServer(req.body.configs);
+      return res.status(200).json({
+        message: "Server configuration update initiated",
+        details: result,
+      });
+    } catch (err) {
+      console.error(`Error during minecraft config update:`, err.message);
+      return res
+        .status(err.statusCode || 500)
+        .json({ message: err.message || "Internal server error" });
     }
   }
 );
