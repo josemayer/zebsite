@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import {
   KeyIcon,
   UserGroupIcon,
@@ -11,6 +18,12 @@ import {
   NoSymbolIcon,
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
+import {
+  CommandLineIcon,
+  PaperAirplaneIcon,
+  TrashIcon,
+  NoSymbolIcon as NoSymbolIconSolid,
+} from "@heroicons/react/24/solid";
 import api from "./api";
 
 interface WorldState {
@@ -30,6 +43,20 @@ interface WorldState {
 interface WorldControllerProps {
   onStatusChange: (status: "on" | "off" | "loading") => void;
   syncStatus: () => Promise<void>;
+}
+
+interface ConsoleProps {
+  onExecute: (command: string) => Promise<{ success: boolean; output: string }>;
+  isServerOnline: boolean;
+  isResetting: boolean;
+}
+
+interface ConsoleHandle {
+  clear: () => void;
+  addLog: (
+    msg: string,
+    type: "command" | "response" | "error" | "system"
+  ) => void;
 }
 
 const WorldController: React.FC<WorldControllerProps> = ({
@@ -57,6 +84,8 @@ const WorldController: React.FC<WorldControllerProps> = ({
 
   const [resetProgress, setResetProgress] = useState(0);
   const RESET_TIMEOUT = 120000; // 120 seconds
+
+  const consoleRef = useRef<ConsoleHandle>(null);
 
   const fetchAllData = useCallback(async () => {
     try {
@@ -102,6 +131,10 @@ const WorldController: React.FC<WorldControllerProps> = ({
     setIsKicking(true);
     try {
       await api.post("/mine/players/kick", { player: targetPlayer });
+      consoleRef.current?.addLog(
+        `System: Kicked player ${targetPlayer}`,
+        "system"
+      );
       setTargetPlayer("");
       showFeedback("success", "Player kicked successfully");
     } catch (err) {
@@ -119,6 +152,12 @@ const WorldController: React.FC<WorldControllerProps> = ({
         player: targetPlayer,
         reason: banReason || "Banned by administrator",
       });
+      consoleRef.current?.addLog(
+        `System: Banned player ${targetPlayer} for reason ${
+          banReason || "Banned by administrator"
+        }`,
+        "system"
+      );
       setTargetPlayer("");
       setBanReason("");
       showFeedback("success", "Player banned successfully");
@@ -129,12 +168,27 @@ const WorldController: React.FC<WorldControllerProps> = ({
     }
   };
 
+  const handleExecuteConsole = async (command: string) => {
+    const res = await api.post(
+      "/mine/console",
+      { command },
+      { timeout: 15000 }
+    );
+
+    return res.data;
+  };
+
   const handleResetWorld = async () => {
     // 1. Immediate UI state changes
     setIsResetting(true);
     setResetProgress(0);
     onStatusChange("loading");
     setIsResetModalOpen(false);
+
+    consoleRef.current?.addLog(
+      "System: World regeneration initialized...",
+      "system"
+    );
 
     // 2. Start the timer IMMEDIATELY
     const startTime = Date.now();
@@ -151,6 +205,10 @@ const WorldController: React.FC<WorldControllerProps> = ({
           const res = await api.get("/mine/status");
           if (res.data.status === "on") {
             setResetProgress(100);
+            consoleRef.current?.addLog(
+              "System: World rebuilt and server online.",
+              "system"
+            );
             setTimeout(() => {
               onStatusChange("on");
               clearInterval(pollInterval);
@@ -361,6 +419,27 @@ const WorldController: React.FC<WorldControllerProps> = ({
           </div>
         </div>
 
+        {/* Console Section */}
+        <div className="mt-6 border-t border-gray-100 pt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+              <CommandLineIcon className="h-4 w-4" /> Remote Console
+            </h4>
+            <button
+              onClick={() => consoleRef.current?.clear()}
+              className="text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1"
+            >
+              <TrashIcon className="h-3 w-3" /> Clear
+            </button>
+          </div>
+          <Console
+            ref={consoleRef}
+            onExecute={handleExecuteConsole}
+            isServerOnline={data !== null}
+            isResetting={isResetting}
+          />
+        </div>
+
         {/* Danger Zone Section */}
         <div className="mt-6 border-t border-gray-100 pt-6">
           <h4 className="text-[10px] font-black text-red-400 uppercase mb-4 tracking-widest flex items-center gap-2">
@@ -470,6 +549,324 @@ const DetailRow = ({ label, value }: { label: string; value?: string }) => (
     <span className="text-gray-500 font-medium">{label}</span>
     <span className="font-bold text-gray-800 capitalize">{value || "—"}</span>
   </div>
+);
+
+interface LogEntry {
+  msg: string;
+  type: "command" | "response" | "error" | "system";
+  timestamp: string;
+}
+
+const COMMAND_SUGGESTIONS = [
+  "/list",
+  "/seed",
+  "/weather clear",
+  "/weather rain",
+  "/gamemode creative",
+  "/gamemode survival",
+  "/stop",
+  "/kick ",
+  "/ban ",
+  "/op ",
+  "/deop ",
+  "/say ",
+  "/help",
+];
+
+const Console = forwardRef<ConsoleHandle, ConsoleProps>(
+  ({ onExecute, isServerOnline, isResetting }, ref) => {
+    useImperativeHandle(ref, () => ({
+      clear: () => {
+        setLogs([]);
+      },
+      addLog: (msg, type) => {
+        setLogs((prev) => [
+          ...prev,
+          {
+            msg,
+            type,
+            timestamp: new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            }),
+          },
+        ]);
+      },
+    }));
+
+    const [input, setInput] = useState("");
+    const [logs, setLogs] = useState<LogEntry[]>([]);
+    const [isExecuting, setIsExecuting] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const [history, setHistory] = useState<string[]>([]);
+    const historyRef = useRef<string[]>([]);
+    const [historyIndex, setHistoryIndex] = useState(-1);
+    const [tempInput, setTempInput] = useState("");
+    const [suggestion, setSuggestion] = useState("");
+    const isFirstRender = useRef(true);
+
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    // 1. Auto-focus when the server comes online OR when execution finishes
+    useEffect(() => {
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+        return;
+      }
+      if (!isExecuting) {
+        // Small delay ensures the DOM has re-enabled the element
+        const timer = setTimeout(() => {
+          inputRef.current?.focus();
+        }, 10);
+        return () => clearTimeout(timer);
+      }
+    }, [isExecuting]);
+
+    // Auto-scroll logic
+    useEffect(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
+    }, [logs, isExecuting]);
+
+    // Auto-suggestion
+    useEffect(() => {
+      if (input.startsWith("/") && input.length > 1) {
+        const match = COMMAND_SUGGESTIONS.find((cmd) => cmd.startsWith(input));
+        // Only show if the match is longer than what we already typed
+        setSuggestion(match && match !== input ? match : "");
+      } else {
+        setSuggestion("");
+      }
+    }, [input]);
+
+    const handleSubmit = async (e?: React.FormEvent) => {
+      e?.preventDefault();
+      if (!input.trim() || isExecuting || !isServerOnline) return;
+
+      const cmd = input.trim();
+      const time = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+
+      const newHistory =
+        history[history.length - 1] === cmd ? history : [...history, cmd];
+      setHistory(newHistory);
+      historyRef.current = newHistory;
+      setHistoryIndex(-1);
+      setTempInput("");
+
+      setInput("");
+      setIsExecuting(true);
+
+      setLogs((prev) => [
+        ...prev,
+        { msg: `> ${cmd}`, type: "command", timestamp: time },
+      ]);
+
+      try {
+        const res = await onExecute(cmd);
+        setLogs((prev) => [
+          ...prev,
+          {
+            msg: res.output || "Done.",
+            type: res.success ? "response" : "error",
+            timestamp: new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          },
+        ]);
+      } catch (err) {
+        setLogs((prev) => [
+          ...prev,
+          {
+            msg: "Connection timeout.",
+            type: "error",
+            timestamp: new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          },
+        ]);
+      } finally {
+        setIsExecuting(false);
+      }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const currentHistory = historyRef.current; // Get the most recent values
+
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (currentHistory.length === 0) return;
+
+        setHistoryIndex((prevIndex) => {
+          const nextIndex = prevIndex + 1;
+          if (nextIndex >= currentHistory.length) return prevIndex;
+
+          if (prevIndex === -1) setTempInput(input);
+
+          // Now this points to the correct, freshly updated history!
+          setInput(currentHistory[currentHistory.length - 1 - nextIndex]);
+          return nextIndex;
+        });
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setHistoryIndex((prevIndex) => {
+          const nextIndex = prevIndex - 1;
+          if (nextIndex >= 0) {
+            setInput(currentHistory[currentHistory.length - 1 - nextIndex]);
+            return nextIndex;
+          } else {
+            setInput(tempInput);
+            return -1;
+          }
+        });
+      }
+
+      if ((e.key === "Tab" || e.key === "ArrowRight") && suggestion) {
+        if (inputRef.current?.selectionStart === input.length) {
+          e.preventDefault();
+          setInput(suggestion);
+          setSuggestion("");
+        }
+      }
+    };
+
+    return (
+      <div
+        className={`bg-slate-900 rounded-2xl border transition-all duration-300 ${
+          isResetting
+            ? "border-yellow-500/50 ring-1 ring-yellow-500/20"
+            : isServerOnline
+            ? "border-slate-800 shadow-xl"
+            : "border-red-900/30 opacity-80"
+        } overflow-hidden flex flex-col`}
+      >
+        {/* Terminal Output */}
+        <div
+          ref={scrollRef}
+          className="h-52 overflow-y-auto p-4 font-mono text-[11px] space-y-1.5 scroll-smooth text-left scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent"
+        >
+          {!isServerOnline && (
+            <div className="flex items-center gap-2 text-red-400 bg-red-400/10 p-2 rounded-lg mb-2">
+              <NoSymbolIconSolid className="h-4 w-4" />
+              <span>Console disabled: Server is offline</span>
+            </div>
+          )}
+          {logs.map((log, i) => (
+            <div
+              key={i}
+              className={`group flex flex-col mb-1 ${
+                log.type === "command" ? "mt-2" : ""
+              }`}
+            >
+              <div
+                className={`flex justify-between items-baseline gap-4 break-all leading-relaxed whitespace-pre-wrap font-mono text-left ${
+                  log.type === "command"
+                    ? "text-blue-400 font-bold"
+                    : log.type === "error"
+                    ? "text-red-400"
+                    : log.type === "system"
+                    ? "text-amber-400 italic"
+                    : "text-emerald-400"
+                }`}
+              >
+                {/* The Message */}
+                <span>{log.msg}</span>
+
+                {/* The Time Marker - Only show for commands, or make it subtle for responses */}
+                {log.type === "command" && (
+                  <span className="text-[9px] font-medium text-slate-500 tabular-nums shrink-0">
+                    {log.timestamp}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+          {isExecuting && (
+            <div className="text-slate-500 animate-pulse flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" />
+              Processing request...
+            </div>
+          )}
+        </div>
+
+        {/* Command Input Section */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-slate-800/50 p-2 border-t border-slate-700/50"
+        >
+          <div className="flex gap-2">
+            <div className="flex-1 relative bg-slate-900 rounded-lg overflow-hidden border border-slate-700 focus-within:border-blue-500 transition-all">
+              {/* 1. GHOST LAYER (Lowest Z-Index) */}
+              {suggestion && (
+                <div
+                  className="absolute inset-0 px-3 py-2 text-xs font-mono pointer-events-none whitespace-pre flex items-center"
+                  style={{ lineHeight: "1rem" }} // Force exact match with input
+                >
+                  {/* The invisible prefix pushes the ghost text to the right spot */}
+                  <span className="text-transparent select-none">{input}</span>
+                  {/* The visible ghost part */}
+                  <span className="text-slate-600 opacity-70">
+                    {suggestion.slice(input.length)}
+                  </span>
+                </div>
+              )}
+
+              {/* 2. REAL INPUT (Middle Z-Index, Transparent Background) */}
+              <input
+                ref={inputRef}
+                type="text"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                value={input}
+                onKeyDown={handleKeyDown}
+                onChange={(e) => setInput(e.target.value)}
+                disabled={!isServerOnline || isExecuting || isResetting}
+                placeholder={
+                  !suggestion && isServerOnline ? "Enter server command..." : ""
+                }
+                className="relative z-10 w-full bg-transparent px-3 py-2 text-xs text-slate-100 font-mono outline-none disabled:cursor-not-allowed"
+                style={{ lineHeight: "1rem" }}
+              />
+
+              {/* 3. HISTORY BADGE (Highest Z-Index) */}
+              {historyIndex !== -1 && (
+                <span className="absolute z-20 right-3 top-1/2 -translate-y-1/2 text-[9px] text-blue-500 font-bold uppercase tracking-tighter bg-blue-500/10 px-1 rounded pointer-events-none">
+                  History {history.length - historyIndex}/{history.length}
+                </span>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={
+                !input.trim() || isExecuting || !isServerOnline || isResetting
+              }
+              className="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white px-4 rounded-lg transition-all active:scale-95 flex items-center justify-center"
+            >
+              <PaperAirplaneIcon className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Micro-UX: Helpful hint for new users */}
+          <div className="mt-1 flex justify-between px-1">
+            <p className="text-[9px] text-slate-500 italic">
+              Press{" "}
+              <kbd className="bg-slate-700 px-1 rounded not-italic">↑</kbd> to
+              cycle previous commands
+            </p>
+          </div>
+        </form>
+      </div>
+    );
+  }
 );
 
 export default WorldController;
