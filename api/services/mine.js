@@ -268,6 +268,13 @@ async function getLiveInfo() {
   return { live_info };
 }
 
+async function executeCommand(command) {
+  const commandArgs = command.trim().split(/\s+/);
+
+  const result = await requestWorkerWithArgs("console", commandArgs);
+  return result;
+}
+
 module.exports = {
   setState,
   setProperties,
@@ -285,4 +292,5 @@ module.exports = {
   getLiveInfo,
   configServer,
   getServerConfig,
+  executeCommand,
 };

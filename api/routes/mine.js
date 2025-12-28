@@ -311,4 +311,30 @@ router.get(
   }
 );
 
+// POST /mine/console
+router.post(
+  "/console",
+  [authenticateToken, verifyAdminRole],
+  async (req, res) => {
+    try {
+      const { command } = req.body;
+
+      if (!command || typeof command !== "string") {
+        return res
+          .status(400)
+          .json({ message: "Missing 'command' string in body" });
+      }
+
+      const result = await mineService.executeCommand(command);
+
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(`Error executing console command:`, err.message);
+      return res
+        .status(err.statusCode || 500)
+        .json({ message: err.message || "Internal server error" });
+    }
+  }
+);
+
 module.exports = router;
