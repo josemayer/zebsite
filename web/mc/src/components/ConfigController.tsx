@@ -809,7 +809,7 @@ const RamSlider: React.FC<{
   value: string;
   onChange: (val: string) => void;
 }> = ({ value, onChange }) => {
-  const levels: string[] = ["2G", "4G", "6G", "8G"];
+  const levels: string[] = ["2G", "4G", "6G", "8G", "12G", "14G", "16G"];
   return (
     <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl">
       <div className="flex justify-between items-end mb-4">
