@@ -162,7 +162,7 @@ const BackupController: React.FC<BackupControllerProps> = ({
           console.error("Polling status failed", err);
         }
 
-        if (Date.now() - startTime > 120000) {
+        if (Date.now() - startTime > 180000) {
           clearInterval(pollInterval);
           syncStatus();
         }

@@ -83,7 +83,7 @@ const ConfigController: React.FC<ConfigControllerProps> = ({
   const [modMode, setModMode] = useState<"MODPACK" | "INDIVIDUAL" | "">("");
   const [versions, setVersions] = useState([""]);
   const [syncProgress, setResetProgress] = useState(0);
-  const SYNC_TIMEOUT = 120000; // 120 seconds
+  const SYNC_TIMEOUT = 180000; // 180 seconds
 
   useEffect(() => {
     const fetchVersions = async () => {
