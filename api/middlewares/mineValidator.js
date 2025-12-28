@@ -51,10 +51,11 @@ const validateMinecraftBusinessRules = (configs) => {
 
   if (configs.MEMORY) {
     const memVal = parseInt(configs.MEMORY);
-    if (memVal < 1) errors.push("MEMORY must be at least 1G.");
-    if (isModdedServer && memVal < 2) {
+    const allowedValues = [2, 4, 6, 8, 12, 14, 16];
+
+    if (!allowedValues.includes(memVal)) {
       errors.push(
-        "Modded servers (Forge/Fabric) require at least 2G of RAM to boot."
+        `Invalid MEMORY value. Must be one of: [${allowedValues.join("G, ")}G]`
       );
     }
   }
