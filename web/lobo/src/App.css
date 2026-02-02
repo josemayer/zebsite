@@ -3,3 +3,142 @@
 @tailwind utilities;
 
 @import url("https://fonts.googleapis.com/css?family=Lemon|Salsa&display=swap");
+
+@keyframes reconnect-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.reconnect-dot {
+  animation: reconnect-pulse 1.5s ease-in-out infinite;
+}
+
+.reconnect-dot-delay-1 {
+  animation-delay: 0.2s;
+}
+
+.reconnect-dot-delay-2 {
+  animation-delay: 0.4s;
+}
+
+.theme-layer {
+  transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+}
+
+.logo-day {
+  filter: brightness(0) saturate(100%) invert(12%) sepia(95%) saturate(701%)
+    hue-rotate(195deg) brightness(93%) contrast(93%);
+}
+
+.logo-night {
+  filter: brightness(0) invert(1);
+}
+
+.logo-svg svg path {
+  transition: fill 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes revealFadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+}
+
+@keyframes gameBoardFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.98) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes roleIconTransform {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(0.7);
+    filter: brightness(1.2);
+  }
+  100% {
+    transform: scale(0.375);
+    filter: brightness(0.8);
+  }
+}
+
+.phase-transition-reveal {
+  animation: revealFadeOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.phase-transition-gameboard {
+  animation: gameBoardFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+.role-icon-transition {
+  animation: roleIconTransform 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes modal-pop {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up-fade {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-modal-pop {
+  animation: modal-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}

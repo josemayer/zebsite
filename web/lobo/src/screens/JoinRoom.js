@@ -1,6 +1,6 @@
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { UserStateContext } from "../App";
 
 function JoinRoom(props) {
@@ -17,6 +17,40 @@ function JoinRoom(props) {
   } = props;
 
   const [roomInput, setRoomInput] = useState("");
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleJoined = (room) => {
+      setLoggedIn(true);
+      setConnected(true);
+      setRoomInfo({ code: room.code.toString(), capacity: room.capacity });
+      setPlayerList(room.players);
+      setPlayerInfo(room.joinedPlayer);
+      setCurrentScreen("room");
+    };
+
+    const handleErr = (error) => {
+      setError(error);
+    };
+
+    socket.on("room_joined", handleJoined);
+    socket.on("error", handleErr);
+
+    return () => {
+      socket.off("room_joined", handleJoined);
+      socket.off("error", handleErr);
+    };
+  }, [
+    socket,
+    setCurrentScreen,
+    setConnected,
+    setLoggedIn,
+    setPlayerInfo,
+    setPlayerList,
+    setRoomInfo,
+    setError,
+  ]);
 
   function backToSelect() {
     setLoggedIn(false);
@@ -35,27 +69,22 @@ function JoinRoom(props) {
     if (!checkInput()) return;
 
     if (socket) {
-      socket.connect();
-      const playerData = {
-        name: playerName,
-        position: "player",
-        roomCode: roomInput,
-      };
-
-      socket.emit("join_room", playerData);
-
-      socket.on("room_joined", (room) => {
-        setLoggedIn(true);
-        setConnected(true);
-        setCurrentScreen("room");
-        setRoomInfo({ code: room.code.toString(), capacity: room.capacity });
-        setPlayerList(room.players);
-        setPlayerInfo(room.joinedPlayer);
-      });
-
-      socket.on("error", (error) => {
-        setError(error);
-      });
+      if (!socket.connected) {
+        socket.connect();
+        socket.once("connect", () => {
+          socket.emit("join_room", {
+            name: playerName,
+            position: "player",
+            roomCode: roomInput,
+          });
+        });
+      } else {
+        socket.emit("join_room", {
+          name: playerName,
+          position: "player",
+          roomCode: roomInput,
+        });
+      }
     }
   }
 

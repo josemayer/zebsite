@@ -6,20 +6,10 @@ import Card from "./Card";
 import Modal from "./Modal";
 
 export default function RoleSelector(props) {
-  const { availableRoles, roles, setRoles, setCapacity } = props;
+  const { availableRoles, roles, setRoles, imagesEndpoint } = props;
 
   const [openModal, setOpenModal] = useState(false);
   const [modalInfo, setModalInfo] = useState({});
-
-  useEffect(() => {
-    let capacity = 1;
-    Object.entries(roles).forEach((entry) => {
-      const quantity = entry[1];
-      capacity += quantity;
-    });
-
-    setCapacity(capacity);
-  }, [roles, setCapacity]);
 
   useEffect(() => {
     if (modalInfo && modalInfo.name) {
@@ -52,15 +42,18 @@ export default function RoleSelector(props) {
 
   function changeRoleQuantity(event, roleName) {
     const newRoles = { ...roles };
+    const val = event.target.value;
 
-    if (event.target.value !== "")
-      newRoles[roleName] = parseInt(event.target.value);
-    else newRoles[roleName] = 0;
+    if (val !== "" && !isNaN(val)) {
+      newRoles[roleName] = parseInt(val);
+    } else {
+      newRoles[roleName] = 0;
+    }
     setRoles(newRoles);
   }
 
   function isRoleSelected(roleName) {
-    return roles.hasOwnProperty(roleName);
+    return Object.prototype.hasOwnProperty.call(roles, roleName);
   }
 
   return (
@@ -69,7 +62,7 @@ export default function RoleSelector(props) {
         <div className="flex flex-col items-center">
           <div className="w-[150px] mb-8">
             <img
-              src={`${props.imagesEndpoint}${modalInfo.name}.svg`}
+              src={`${imagesEndpoint}${modalInfo.name}.svg`}
               alt={modalInfo.title}
             />
           </div>
@@ -79,33 +72,37 @@ export default function RoleSelector(props) {
           <p className="text-justify">{modalInfo.description}</p>
         </div>
       </Modal>
+
       <div className="grid grid-cols-2 auto-rows-max gap-4">
         {availableRoles.map((role, index) => {
+          const selected = isRoleSelected(role.name);
+
           return (
             <label
+              key={role.name}
               htmlFor={role.name}
               className={
                 index === availableRoles.length - 1 &&
-                availableRoles.length % 2 === 1 &&
-                "col-span-2"
+                availableRoles.length % 2 === 1
+                  ? "col-span-2"
+                  : ""
               }
             >
               <Card
-                key={index}
                 hFull
-                bgClass={isRoleSelected(role.name) ? "bg-yellow" : "bg-white"}
+                bgClass={selected ? "bg-brandYellow" : "bg-white"}
                 footer={
                   <div className="flex justify-between min-h-[30px] items-center mt-2">
                     <IoMdInformationCircle
                       onClick={(e) => handleModalOpen(e, role)}
-                      className="text-black text-2xl"
+                      className="text-black text-2xl cursor-pointer"
                     />
-                    {isRoleSelected(role.name) && (
+                    {selected && (
                       <NumericInput
-                        placeholder="Quantidade"
+                        placeholder="Qtd"
                         min="1"
                         onChange={(e) => changeRoleQuantity(e, role.name)}
-                        value={roles[role.name]}
+                        value={roles[role.name] || ""}
                       />
                     )}
                   </div>
@@ -114,18 +111,20 @@ export default function RoleSelector(props) {
                 <div className="flex items-center py-1">
                   <input
                     type="checkbox"
+                    checked={selected}
                     onChange={(e) => selectRole(e, role.name)}
                     id={role.name}
-                    value={role.name}
                     className="mr-2"
                   />
-                  <span className="mr-2">{role.title}</span>
+                  <span className="font-bold text-sm truncate">
+                    {role.title}
+                  </span>
                 </div>
                 <div className="flex justify-center mt-2">
                   <div
-                    className="w-[100px] h-[100px] bg-center bg-contain bg-no-repeat"
+                    className="w-[80px] h-[80px] bg-center bg-contain bg-no-repeat"
                     style={{
-                      backgroundImage: `url(${props.imagesEndpoint}${role.name}.svg)`,
+                      backgroundImage: `url(${imagesEndpoint}${role.name}.svg)`,
                     }}
                   ></div>
                 </div>

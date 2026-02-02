@@ -1,13 +1,14 @@
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
 import { useState, useContext } from "react";
-import { UserStateContext } from "../App";
+import { UserStateContext, ThemeContext } from "../App";
 
 function Login(props) {
   const { playerName, setPlayerName, setError } = props;
 
   const { loggedIn, setLoggedIn, setCurrentScreen } =
     useContext(UserStateContext);
+  const { isNight } = useContext(ThemeContext);
 
   const [playerInput, setPlayerInput] = useState(playerName);
 
@@ -49,7 +50,13 @@ function Login(props) {
           width="300px"
         />
       </div>
-      <div className="text-white text-center py-2">Entrar como...</div>
+      <div
+        className={`text-center py-2 ${
+          isNight ? "text-white" : "text-[#2e1065]"
+        }`}
+      >
+        Entrar como...
+      </div>
       <div className="grid grid-cols-2 gap-4">
         <Button handleClick={handleHost} disabled={loggedIn} color="orange">
           Anfitrião

@@ -4,15 +4,15 @@ function Button(props) {
   function bgClass() {
     switch (color) {
       case "purple":
-        return "bg-purple";
+        return "bg-brandPurple";
       case "green":
-        return "bg-green";
+        return "bg-brandGreen";
       case "red":
-        return "bg-red";
+        return "bg-brandRed";
       case "yellow":
-        return "bg-yellow";
+        return "bg-brandYellow";
       default:
-        return "bg-orange";
+        return "bg-brandOrange";
     }
   }
 
