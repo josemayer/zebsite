@@ -4,12 +4,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        purple: "#6524BF",
-        green: "#29A655",
-        lightGreen: "#62F596",
-        yellow: "#F2BF27",
-        orange: "#F27D16",
-        red: "#F21616",
+        brandPurple: "#6524BF",
+        brandGreen: "#29A655",
+        brandLightGreen: "#62F596",
+        brandYellow: "#F2BF27",
+        brandOrange: "#F27D16",
+        brandRed: "#F21616",
       },
     },
   },
