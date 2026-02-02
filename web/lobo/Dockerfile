@@ -1,6 +1,6 @@
 FROM oven/bun AS deps
 WORKDIR /app
-COPY ./web/lobo/bun.lockb ./web/lobo/package.json ./
+COPY ./web/lobo/bun.lock ./web/lobo/package.json ./
 RUN bun install
 
 FROM oven/bun AS development
