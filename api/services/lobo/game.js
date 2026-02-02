@@ -1,91 +1,79 @@
-const Room = require("./Room");
 const Player = require("./Player");
 const WerewolfRoom = require("./WerewolfRoom");
 
 const activeRooms = [];
 
-function createNewRoom(capacity, roles) {
-  try {
-    let roomId = generateRoomId();
-    const room = new WerewolfRoom(roomId, capacity, roles);
-    activeRooms.push(room);
-    return room;
-  } catch (e) {
-    throw e;
-    return undefined;
-  }
+function getRoom(code) {
+  // Use == (double equals) to allow "5687" to match 5687
+  return activeRooms.find((room) => room.code == code);
+}
+
+function createNewRoom(capacity, roles, io) {
+  let roomId = generateRoomId();
+  // Pass IO to the room so it can broadcast timer updates internally
+  const room = new WerewolfRoom(roomId, capacity, roles, io);
+  activeRooms.push(room);
+  return room;
 }
 
 function deleteRoom(roomId) {
-  if (!isActiveRoom(roomId)) {
-    throw new Error("Room does not exist");
+  const roomCode = parseInt(roomId);
+  const roomIndex = activeRooms.findIndex((room) => room.code === roomCode);
+  if (roomIndex !== -1) {
+    activeRooms.splice(roomIndex, 1);
   }
-
-  const roomIndex = activeRooms.findIndex((room) => room.code === roomId);
-  activeRooms.splice(roomIndex, 1);
-}
-
-function createPlayer(name, id, position) {
-  return new Player(name, id, position);
 }
 
 function joinRoom(roomId, playerData) {
-  if (!isActiveRoom(roomId)) {
-    throw new Error("Room does not exist");
+  const room = getRoom(roomId);
+  if (!room) throw new Error("Sala não encontrada");
+
+  // Check if player with same name exists (reconnection)
+  const existingPlayer = room.findPlayerByName(playerData.name);
+  if (existingPlayer && !existingPlayer.isConnected) {
+    // Reconnecting player - update socket ID
+    existingPlayer.updateSocketId(playerData.id);
+    return room;
   }
 
-  const { name, id, position } = playerData;
-  const player = createPlayer(name, id, position);
+  // CRITICAL: Convert the raw data from the socket into a REAL Player instance
+  const player = new Player(
+    playerData.name,
+    playerData.id,
+    playerData.position
+  );
 
-  const room = activeRooms.find((room) => room.code === roomId);
   room.addPlayer(player);
-
   return room;
 }
 
 function leaveRoom(roomId, playerId) {
-  if (!isActiveRoom(roomId)) {
-    throw new Error("Room does not exist");
-  }
+  const code = parseInt(roomId);
+  const room = activeRooms.find((r) => r.code === code);
+  if (!room) throw new Error("Sala não encontrada");
 
-  const room = activeRooms.find((room) => room.code === roomId);
   room.removePlayer(playerId);
 
   if (room.isEmpty()) {
     deleteRoom(roomId);
+    return null;
   }
 
   return room;
 }
 
-function startGame(roomId) {
-  if (!isActiveRoom(roomId)) {
-    throw new Error("Room does not exist");
-  }
-
-  try {
-    const room = activeRooms.find((room) => room.code === roomId);
-    room.assignRoles();
-    return room;
-  } catch (e) {
-    throw e;
-    return undefined;
-  }
-}
-
 function kickPlayer(roomId, playerId, hostId) {
-  if (!isActiveRoom(roomId)) {
-    throw new Error("Room does not exist");
-  }
+  const room = getRoom(roomId);
+  if (!room) throw new Error("Sala não encontrada");
 
-  const room = activeRooms.find((room) => room.code === roomId);
-
-  if (room.host.id !== hostId) {
-    throw new Error("You are not the host");
+  // Assuming position 'host' check
+  const host = room.players.find((p) => p.id === hostId);
+  if (!host || host.position !== "host") {
+    throw new Error("Apenas o anfitrião pode expulsar jogadores");
   }
 
   if (playerId === hostId) {
-    throw new Error("You cannot kick yourself");
+    throw new Error("Você não pode se expulsar");
   }
 
   room.removePlayer(playerId);
@@ -93,26 +81,19 @@ function kickPlayer(roomId, playerId, hostId) {
 }
 
 function isActiveRoom(roomId) {
-  if (activeRooms.find((room) => room.code === roomId) !== undefined) {
-    return true;
-  }
-  return false;
+  return activeRooms.some((room) => room.code === parseInt(roomId));
 }
 
 function generateRoomId() {
-  let roomId = Math.floor(Math.random() * 10000);
-
-  let tries = 10000;
+  let roomId = Math.floor(1000 + Math.random() * 9000); // 4 digit code
+  let tries = 100;
 
   while (isActiveRoom(roomId) && tries > 0) {
     tries--;
-    roomId = (roomId + 1) % 10000;
+    roomId = Math.floor(1000 + Math.random() * 9000);
   }
 
-  if (tries === 0) {
-    throw new Error("No available rooms");
-  }
-
+  if (tries === 0) throw new Error("Servidor lotado");
   return roomId;
 }
 
@@ -121,6 +102,7 @@ module.exports = {
   deleteRoom,
   joinRoom,
   leaveRoom,
-  startGame,
   kickPlayer,
+  getRoom,
+  isActiveRoom,
 };

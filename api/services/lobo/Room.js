@@ -17,6 +17,8 @@ class Room {
     }
 
     if (!(player instanceof Player)) {
+      console.error("CHECK HERE");
+      console.trace();
       throw new Error("Player is not an instance of Player");
     }
 
@@ -28,29 +30,40 @@ class Room {
   }
 
   removePlayer(playerId) {
-    const playerToRemove = this.#players.find((p) => p.id === playerId);
+    const playerIndex = this.#players.findIndex((p) => p.id === playerId);
 
-    if (!playerToRemove) {
+    if (playerIndex === -1) {
       throw new Error("Player not found in room");
     }
 
-    this.#players = this.#players.filter((p) => p.id !== playerId);
+    const playerToRemove = this.#players[playerIndex];
+    this.#players.splice(playerIndex, 1);
 
-    if (!this.isEmpty() && playerToRemove.isHost()) {
-      this.#players[0].setHost();
+    // If the host left, assign the next person as host
+    if (!this.isEmpty() && playerToRemove.position === "host") {
+      this.#players[0].position = "host";
     }
   }
 
-  get host() {
-    return this.#players.find((p) => p.isHost());
+  /**
+   * Returns plain objects for Socket.io
+   * Uses #players (the raw instances) to avoid the getter loop
+   */
+  getAllPlayers() {
+    return this.#players.map((p) => p.toPublicObject());
   }
 
+  // This provides the raw Class Instances to your game logic (WerewolfRoom)
   get players() {
-    return this.#players.map((p) => p.toObject());
+    return this.#players;
+  }
+
+  get host() {
+    return this.#players.find((p) => p.position === "host");
   }
 
   playersWithoutHost() {
-    return this.#players.filter((p) => !p.isHost());
+    return this.#players.filter((p) => p.position !== "host");
   }
 
   get code() {
@@ -71,6 +84,14 @@ class Room {
 
   #havePlayer(player) {
     return this.#players.some((p) => p.id === player.id);
+  }
+
+  findPlayerByName(name) {
+    return this.#players.find((p) => p.name === name);
+  }
+
+  findPlayerById(playerId) {
+    return this.#players.find((p) => p.id === playerId);
   }
 }
 
