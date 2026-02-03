@@ -69,6 +69,9 @@ class Player {
   set nightAction(targetId) {
     this.#nightAction = targetId;
   }
+  set position(newPosition) {
+    this.#position = newPosition;
+  }
 
   setConnected(connected) {
     this.#isConnected = connected;

@@ -11,20 +11,11 @@ const events = (io, socket) => {
           if (room) {
             const player = room.findPlayerById(socket.id);
             if (player) {
-              // If game has started, mark as disconnected but keep in room
-              if (room.phase && room.phase !== "LOBBY") {
-                player.setConnected(false);
-                console.log(`Player ${player.name} disconnected (game in progress)`);
-                io.to(codeStr).emit("player_list_update", room.getAllPlayers());
-              } else {
-                // Game hasn't started, remove player
-                game.leaveRoom(codeStr, socket.id);
-                const updatedRoom = game.getRoom(codeStr);
-                if (updatedRoom) {
-                  io.to(codeStr).emit("player_left", updatedRoom.getAllPlayers());
-                }
-                console.log(`Player ${player.name} left room ${codeStr}`);
-              }
+              player.setConnected(false);
+              console.log(
+                `Player ${player.name} disconnected (game in progress)`
+              );
+              io.to(codeStr).emit("player_list_update", room.getAllPlayers());
             }
           }
         } catch (error) {
@@ -92,7 +83,7 @@ const events = (io, socket) => {
 
       const player = room.findPlayerById(socket.id);
       const wasReconnecting = player && !player.isConnected;
-      
+
       if (wasReconnecting) {
         player.setConnected(true);
         console.log(`[SERVER] Player ${name} reconnected to room ${codeStr}`);
@@ -201,6 +192,19 @@ const events = (io, socket) => {
     try {
       const room = game.getRoom(codeStr);
       if (room) {
+        const players = room.getAllPlayers();
+        const allConnected = players.every((p) => p.isConnected);
+
+        if (!allConnected) {
+          const missing = players
+            .filter((p) => !p.isConnected)
+            .map((p) => p.name);
+          return socket.emit(
+            "error",
+            `Aguardando reconexão de: ${missing.join(", ")}`
+          );
+        }
+
         console.log(">>> [SERVER] Room found! Starting game logic...");
         room.startGame();
       } else {
