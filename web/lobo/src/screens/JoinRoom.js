@@ -32,6 +32,7 @@ function JoinRoom(props) {
 
     const handleErr = (error) => {
       setError(error);
+      setConnected(false);
     };
 
     socket.on("room_joined", handleJoined);

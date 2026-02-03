@@ -2,6 +2,8 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import { useEffect, useContext, useState } from "react";
 import { IoIosRemoveCircleOutline } from "react-icons/io";
+// Added LuUser to imports to match GameBoard style
+import { LuUser } from "react-icons/lu";
 import { UserStateContext, ThemeContext } from "../App";
 
 function Room(props) {
@@ -22,6 +24,9 @@ function Room(props) {
   } = props;
 
   const [kickModalOpen, setKickModalOpen] = useState(false);
+  const everyoneConnected = playerList.every((player) => player.isConnected);
+  const isRoomFull = playerList.length >= roomInfo.capacity;
+  const canStart = isRoomFull && everyoneConnected;
 
   useEffect(() => {
     if (!socket) return;
@@ -98,20 +103,12 @@ function Room(props) {
   }
 
   function startGame() {
-    console.log("--- START GAME DEBUG ---");
-    console.log("Socket object exists:", !!socket);
-    if (socket) console.log("Socket connected:", socket.connected);
-    console.log("Room Code:", roomInfo.code);
-    console.log("Player List Length:", playerList.length);
-    console.log("Room Capacity:", roomInfo.capacity);
-
     if (!socket || !socket.connected) {
       setError("Erro: Conexão perdida com o servidor.");
       return;
     }
 
     if (socket && roomInfo.code) {
-      console.log("EMITTING 'start_game' NOW...");
       socket.emit("start_game", roomInfo.code);
     }
   }
@@ -142,47 +139,90 @@ function Room(props) {
       </div>
 
       <ul className="space-y-2">
-        {playerList.map((player) => (
-          <li
-            key={player.id}
-            className={`flex justify-between items-center p-2 rounded ${
-              player.position === "host"
-                ? "bg-yellow-600/20 border border-yellow-500/50"
-                : "bg-white/5"
-            } ${!player.isConnected ? "opacity-60" : ""}`}
-          >
-            <span
-              className={`flex items-center gap-2 ${
-                player.position === "host"
-                  ? "text-yellow-400 font-bold"
-                  : isNight
-                  ? "text-white"
-                  : "text-[#2e1065]"
-              }`}
-            >
-              {player.name} {player.position === "host" && "👑"}{" "}
-              {player.id === playerInfo.id && (
-                <span className="text-gray-400 text-sm">(Você)</span>
-              )}
-              {!player.isConnected && (
-                <span className="flex items-center gap-1 text-yellow-400 text-sm">
-                  <span className="reconnect-dot">●</span>
-                  <span className="reconnect-dot reconnect-dot-delay-1">●</span>
-                  <span className="reconnect-dot reconnect-dot-delay-2">●</span>
-                </span>
-              )}
-            </span>
+        {playerList.map((player) => {
+          const isMe = player.id === playerInfo.id;
 
-            {connected && isHost() && player.id !== playerInfo.id && (
-              <button
-                onClick={() => kickPlayer(player.id)}
-                className="text-red-400 hover:text-red-300 transition-colors"
-              >
-                <IoIosRemoveCircleOutline size={24} />
-              </button>
-            )}
-          </li>
-        ))}
+          return (
+            <li
+              key={player.id}
+              className={`p-2 rounded flex items-center justify-between transition-all border ${
+                player.position === "host"
+                  ? "bg-yellow-600/20 border-yellow-500/50"
+                  : isMe
+                  ? isNight
+                    ? "bg-blue-900/40 border-blue-400/50"
+                    : "bg-blue-100 border-blue-200 shadow-sm"
+                  : isNight
+                  ? "bg-white/5 border-white/5"
+                  : "bg-white border-gray-200 shadow-sm"
+              } ${!player.isConnected ? "opacity-60" : ""}`}
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex-shrink-0 flex items-center justify-center w-5">
+                  <LuUser
+                    className={
+                      player.position === "host"
+                        ? "text-yellow-400"
+                        : isMe
+                        ? isNight
+                          ? "text-blue-400"
+                          : "text-blue-600"
+                        : isNight
+                        ? "text-gray-400"
+                        : "text-gray-500"
+                    }
+                    size={16}
+                  />
+                </div>
+
+                <span
+                  className={`text-sm font-medium ${
+                    player.position === "host"
+                      ? "text-yellow-400 font-bold"
+                      : isNight
+                      ? "text-white"
+                      : "text-[#2e1065]"
+                  }`}
+                >
+                  {player.name} {player.position === "host" && "👑"}{" "}
+                  {isMe && (
+                    <span className="text-gray-400 font-normal text-xs ml-1">
+                      (Você)
+                    </span>
+                  )}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {!player.isConnected && (
+                  <span
+                    className={`flex items-center gap-1 text-xs ${
+                      isNight ? "text-white" : "text-[#2e1065]"
+                    }`}
+                  >
+                    <span className="reconnect-dot">●</span>
+                    <span className="reconnect-dot reconnect-dot-delay-1">
+                      ●
+                    </span>
+                    <span className="reconnect-dot reconnect-dot-delay-2">
+                      ●
+                    </span>
+                  </span>
+                )}
+
+                {connected && isHost() && player.id !== playerInfo.id && (
+                  <button
+                    onClick={() => kickPlayer(player.id)}
+                    className="text-red-400 hover:text-red-300 transition-colors ml-2"
+                    title="Expulsar jogador"
+                  >
+                    <IoIosRemoveCircleOutline size={22} />
+                  </button>
+                )}
+              </div>
+            </li>
+          );
+        })}
       </ul>
 
       <div className="flex flex-col sm:flex-row gap-4 mt-8">
@@ -198,10 +238,12 @@ function Room(props) {
           <Button
             className="flex-grow"
             handleClick={startGame}
-            disabled={playerList.length < roomInfo.capacity}
+            disabled={!canStart}
           >
-            {playerList.length < roomInfo.capacity
+            {!isRoomFull
               ? `Aguardando jogadores (${playerList.length}/${roomInfo.capacity})`
+              : !everyoneConnected
+              ? "Aguardando reconexão..."
               : "Começar o Jogo"}
           </Button>
         )}
