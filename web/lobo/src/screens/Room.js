@@ -2,8 +2,7 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import { useEffect, useContext, useState } from "react";
 import { IoIosRemoveCircleOutline } from "react-icons/io";
-// Added LuUser to imports to match GameBoard style
-import { LuUser } from "react-icons/lu";
+import { LuUser, LuCrown } from "react-icons/lu"; // Import Crown Icon
 import { UserStateContext, ThemeContext } from "../App";
 
 function Room(props) {
@@ -119,6 +118,27 @@ function Room(props) {
     }
   }
 
+  const getRowStyles = (isMe, isHostPlayer) => {
+    let base =
+      "p-3 rounded-lg flex items-center justify-between transition-all border ";
+
+    if (isMe) {
+      return (
+        base +
+        (isNight
+          ? "bg-blue-900/30 border-blue-500/50 shadow-[0_0_10px_rgba(59,130,246,0.15)]"
+          : "bg-blue-50 border-blue-200 shadow-sm")
+      );
+    }
+
+    return (
+      base +
+      (isNight
+        ? "bg-white/5 border-white/10"
+        : "bg-white border-gray-200 shadow-sm")
+    );
+  };
+
   return (
     <div className="flex flex-col">
       <Modal opened={kickModalOpen} close={closeKickModalAndLeaveRoom}>
@@ -126,71 +146,84 @@ function Room(props) {
       </Modal>
 
       <div
-        className={`flex justify-between items-center text-3xl border-b-[1px] pb-2 mb-4 ${
-          isNight ? "text-white" : "text-[#2e1065]"
+        className={`flex justify-between items-center text-3xl border-b-[1px] pb-4 mb-6 ${
+          isNight
+            ? "text-white border-white/10"
+            : "text-[#2e1065] border-gray-300"
         }`}
       >
-        <span>
-          Sala <strong>{roomInfo.code}</strong>
-        </span>
-        <span className="text-xl">
-          ({`${playerList.length}/${roomInfo.capacity}`})
+        <span className="font-bold tracking-tight">Sala {roomInfo.code}</span>
+        <span
+          className={`text-lg font-medium px-3 py-1 rounded-full ${
+            isNight ? "bg-white/10" : "bg-gray-100"
+          }`}
+        >
+          {playerList.length} / {roomInfo.capacity}
         </span>
       </div>
 
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {playerList.map((player) => {
           const isMe = player.id === playerInfo.id;
+          const isHostPlayer = player.position === "host";
 
           return (
             <li
               key={player.id}
-              className={`p-2 rounded flex items-center justify-between transition-all border ${
-                player.position === "host"
-                  ? "bg-yellow-600/20 border-yellow-500/50"
-                  : isMe
-                  ? isNight
-                    ? "bg-blue-900/40 border-blue-400/50"
-                    : "bg-blue-100 border-blue-200 shadow-sm"
-                  : isNight
-                  ? "bg-white/5 border-white/5"
-                  : "bg-white border-gray-200 shadow-sm"
-              } ${!player.isConnected ? "opacity-60" : ""}`}
+              className={`${getRowStyles(isMe, isHostPlayer)} ${
+                !player.isConnected ? "opacity-50 grayscale" : ""
+              }`}
             >
-              <div className="flex items-center gap-2">
-                <div className="flex-shrink-0 flex items-center justify-center w-5">
-                  <LuUser
-                    className={
-                      player.position === "host"
-                        ? "text-yellow-400"
-                        : isMe
-                        ? isNight
-                          ? "text-blue-400"
-                          : "text-blue-600"
-                        : isNight
-                        ? "text-gray-400"
-                        : "text-gray-500"
-                    }
-                    size={16}
-                  />
-                </div>
-
-                <span
-                  className={`text-sm font-medium ${
-                    player.position === "host"
-                      ? "text-yellow-400 font-bold"
+              <div className="flex items-center gap-3">
+                <div
+                  className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full ${
+                    isHostPlayer
+                      ? isNight
+                        ? "bg-amber-500/20 text-amber-400"
+                        : "bg-amber-100 text-amber-600"
                       : isNight
-                      ? "text-white"
-                      : "text-[#2e1065]"
+                      ? "bg-white/10 text-gray-400"
+                      : "bg-gray-100 text-gray-500"
                   }`}
                 >
-                  {player.name} {player.position === "host" && "👑"}{" "}
-                  {isMe && (
-                    <span className="text-gray-400 font-normal text-xs ml-1">
-                      (Você)
-                    </span>
-                  )}
-                </span>
+                  {isHostPlayer ? <LuCrown size={18} /> : <LuUser size={18} />}
+                </div>
+
+                <div className="flex flex-col leading-tight">
+                  <span
+                    className={`font-semibold text-base flex items-center gap-2 ${
+                      isNight ? "text-gray-100" : "text-gray-800"
+                    }`}
+                  >
+                    {player.name}
+
+                    {/* HOST BADGE */}
+                    {isHostPlayer && (
+                      <span
+                        className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border ${
+                          isNight
+                            ? "bg-amber-900/30 text-amber-400 border-amber-500/30"
+                            : "bg-amber-50 text-amber-700 border-amber-200"
+                        }`}
+                      >
+                        Host
+                      </span>
+                    )}
+
+                    {/* ME BADGE */}
+                    {isMe && (
+                      <span
+                        className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border ${
+                          isNight
+                            ? "bg-blue-900/30 text-blue-300 border-blue-500/30"
+                            : "bg-blue-50 text-blue-600 border-blue-200"
+                        }`}
+                      >
+                        Você
+                      </span>
+                    )}
+                  </span>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -213,10 +246,13 @@ function Room(props) {
                 {connected && isHost() && player.id !== playerInfo.id && (
                   <button
                     onClick={() => kickPlayer(player.id)}
-                    className="text-red-400 hover:text-red-300 transition-colors ml-2"
+                    className="group p-2 hover:bg-red-50 rounded-full transition-colors"
                     title="Expulsar jogador"
                   >
-                    <IoIosRemoveCircleOutline size={22} />
+                    <IoIosRemoveCircleOutline
+                      size={22}
+                      className="text-gray-400 group-hover:text-red-500 transition-colors"
+                    />
                   </button>
                 )}
               </div>
@@ -225,7 +261,7 @@ function Room(props) {
         })}
       </ul>
 
-      <div className="flex flex-col sm:flex-row gap-4 mt-8">
+      <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-4 border-t border-gray-200/10">
         <Button
           className="flex-grow text-white"
           handleClick={leaveRoom}
@@ -236,15 +272,15 @@ function Room(props) {
 
         {isHost() && (
           <Button
-            className="flex-grow"
+            className="flex-grow shadow-lg shadow-indigo-500/20"
             handleClick={startGame}
             disabled={!canStart}
           >
             {!isRoomFull
-              ? `Aguardando jogadores (${playerList.length}/${roomInfo.capacity})`
+              ? `Aguardando (${playerList.length}/${roomInfo.capacity})`
               : !everyoneConnected
               ? "Aguardando reconexão..."
-              : "Começar o Jogo"}
+              : "Começar Jogo"}
           </Button>
         )}
       </div>

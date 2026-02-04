@@ -101,7 +101,7 @@ function GameBoard({ gameState, secretData, playerName, socket, endpoint }) {
 
   if (!gameState || !secretData)
     return (
-      <div className="flex items-center justify-center min-h-screen text-white">
+      <div className="flex items-center justify-center text-white">
         Carregando...
       </div>
     );
@@ -137,7 +137,7 @@ function GameBoard({ gameState, secretData, playerName, socket, endpoint }) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col">
       {phase !== "ROLE_REVEAL" && (
         <div
           className={`flex justify-center items-center border-b pb-2 mb-4 ${
@@ -319,7 +319,7 @@ function GameBoard({ gameState, secretData, playerName, socket, endpoint }) {
               {!hasConfirmedRole && (
                 <button
                   onClick={handleRoleConfirm}
-                  className={`px-4 py-2 rounded font-semibold text-sm transition-colors bg-green-600 hover:bg-green-500`}
+                  className={`px-4 py-2 rounded font-semibold text-sm text-white transition-colors bg-green-600 hover:bg-green-500`}
                 >
                   Confirmar
                 </button>
