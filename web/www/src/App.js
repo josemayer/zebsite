@@ -52,11 +52,12 @@ function App() {
             </h2>
             <div className="max-w-[480px] text-sm sm:text-base mt-16 sm:mt-20 flex flex-col gap-4 tracking-[2px]">
               <p>
-                Hi! I'm José, a last-year degree student of Computer Science
-                course at University of São Paulo (USP). My main area of
-                expertise is software engineering of web applications. I like a
-                lot to do gaming stuffs and like a lot to play. I also like
-                dogs.
+                Hey! I'm José, a Computer Science graduate from University of
+                São Paulo (USP) with over three years of experience in software
+                engineering. My expertise lies in building mostly web
+                applications, working across the entire stack. Outside of code,
+                I’m passionate about gaming, both playing and developing, and
+                I’m a dog lover.
               </p>
               <p>Here you can see some of my personal and academic works.</p>
             </div>
